@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "CommonJS",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES6",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "moduleResolution": "node",
+    "lib": [
+      "ES7"
+    ],
+    "paths": {
+      "@api/*": [
+        "src/api/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ],
+      "@constant/*": [
+        "src/data/constant/*"
+      ],
+      "@decorator/*": [
+        "src/data/decorator/*"
+      ],
+      "@database-config/*": [
+        "src/data/database-config/*"
+      ],
+      "@entity/*": [
+        "src/data/entity/*"
+      ],
+      "@guard/*": [
+        "src/data/guard/*"
+      ],
+      "@interceptor/*": [
+        "src/data/interceptor/*"
+      ],
+      "@interface/*": [
+        "src/data/interface/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+    }
+  }
+}
