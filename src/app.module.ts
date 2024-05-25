@@ -3,9 +3,14 @@ import { ApiModule } from './api/api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigAsync } from '@database-config/typeorm/typeorm.config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { getEnvPath } from 'common/helper/env.helper';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from './data/shared/shared.module';
+import { AllExceptionsFilter } from '@interceptor/catch/catch.interceptor';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from '@interceptor/response/response.interceptor';
+import { MorganInterceptor, MorganModule } from 'nest-morgan';
+import { getEnvPath } from 'common/helper/env.helper';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 const envFilePath: string = getEnvPath(`${__dirname}/../common/envs`);
 
@@ -13,22 +18,37 @@ const envFilePath: string = getEnvPath(`${__dirname}/../common/envs`);
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
     // delimitar los nombres de los envetos en puntos
-    // en caso de no tenerlos installado
-    // npm install --save @nestjs/config
+
     EventEmitterModule.forRoot({ delimiter: '.' }),
 
     TypeOrmModule.forRootAsync(TypeOrmConfigAsync),
     //esto se usa Para servir contenido estático como una aplicación de página única
-    // en caso de no tenerlos installado
-    // npm install --save @nestjs/serve-static
-    // ServeStaticModule.forRoot({
-    //   serveRoot: '/static',
-    //   rootPath: process.env.STORE_FILES_PATH,
-    // }),
+    ServeStaticModule.forRoot({
+      serveRoot: '/static',
+      rootPath: process.env.STORE_FILES_PATH,
+    }),
+
     ApiModule,
+    MorganModule,
     SharedModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    // morgan es para reguistar en logging todas las peticiones
+    // npm install --save morgan
+
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MorganInterceptor('dev'),
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
 })
 export class AppModule {}

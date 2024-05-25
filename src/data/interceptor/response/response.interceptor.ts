@@ -1,3 +1,4 @@
+import { IResponse } from '@interface/response/response.interface';
 import {
   Injectable,
   NestInterceptor,
@@ -7,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { IResponse } from '../../interface/data/interceptor/response/response.interface';
 
 @Injectable()
 export class ResponseInterceptor<T>
@@ -32,10 +32,10 @@ export class ResponseInterceptor<T>
               (data && data.message) ?? (data && data.status === 401)
                 ? 'UNAUTORIZED'
                 : !data
-                ? 'NOT_DATA'
-                : 'SUCCESS',
+                  ? 'NOT_DATA'
+                  : 'SUCCESS',
             result: data ?? {},
-          } as IResponse<T>),
+          }) as IResponse<T>,
       ),
     );
   }
