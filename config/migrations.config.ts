@@ -20,6 +20,5 @@ const dataSource = new DataSource({
     encrypt: false,
   },
 });
-console.log('dataSource :>> ', dataSource);
 
 export default dataSource;
