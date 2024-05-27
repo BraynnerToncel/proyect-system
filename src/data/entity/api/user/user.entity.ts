@@ -1,7 +1,16 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Role } from '../role/role.entity';
+import { Loan } from '../loan/loan.entity';
+import { Reservation } from '../resevation/reservation.entity';
 
-@Entity('users')
+@Entity('user')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   userId: string;
@@ -18,7 +27,7 @@ export class User {
   @Column({ type: 'varchar', length: 32, nullable: false })
   userEmail: string;
 
-  @Column({ type: 'varchar', length: 150, nullable: false })
+  @Column({ type: 'varchar', length: 50, nullable: false })
   userPassword: string;
 
   @Column({ type: 'boolean', default: true, nullable: false })
@@ -26,4 +35,12 @@ export class User {
 
   @ManyToOne(() => Role, (role) => role.user)
   role: Role;
+
+  @OneToMany(() => Loan, (loan) => loan.user)
+  @JoinColumn()
+  loan: Array<Loan>;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  @JoinColumn()
+  reservation: Array<Reservation>;
 }
