@@ -9,7 +9,7 @@ import { User } from '../user/user.entity';
 import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
 import { Element } from '../element/element.entity';
 
-@Entity('loan')
+@Entity()
 export class Loan {
   @PrimaryGeneratedColumn('uuid')
   loanId: string;
@@ -31,11 +31,17 @@ export class Loan {
   @Column({ type: 'boolean', default: true, nullable: false })
   loanState: boolean;
 
-  @ManyToOne(() => User, (user) => user.loan)
-  user: User;
+  @ManyToOne(() => User, (user) => user.requestedUser)
+  requestedUser: User;
 
-  @ManyToOne(() => TypeOfUse, (typeofuse) => typeofuse.loan)
-  typeofuse: TypeOfUse;
+  @ManyToOne(() => User, (user) => user.deliveryUser)
+  deliveryUser: User;
+
+  @ManyToOne(() => User, (user) => user.receivedUser)
+  receivedUser: User;
+
+  @ManyToOne(() => TypeOfUse, (typeOfUse) => typeOfUse.loan)
+  typeOfUse: TypeOfUse;
 
   @ManyToOne(() => Element, (element) => element.loan)
   element: Element;

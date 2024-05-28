@@ -11,7 +11,7 @@ import { Loan } from '../loan/loan.entity';
 import { Type } from '../type/type.entity';
 import { Install } from '../install/install.entity';
 
-@Entity('element')
+@Entity()
 export class Element {
   @PrimaryGeneratedColumn('uuid')
   elementId: string;

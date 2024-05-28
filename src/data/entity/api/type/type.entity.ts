@@ -10,7 +10,7 @@ import {
 import { Element } from '../element/element.entity';
 import { Feature } from '../feature/feature.entity';
 
-@Entity('type')
+@Entity()
 export class Type {
   @PrimaryGeneratedColumn('uuid')
   typeId: string;

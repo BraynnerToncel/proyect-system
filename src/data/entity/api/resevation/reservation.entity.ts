@@ -9,10 +9,10 @@ import { User } from '../user/user.entity';
 import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
 import { Element } from '../element/element.entity';
 
-@Entity('reservation')
+@Entity()
 export class Reservation {
   @PrimaryGeneratedColumn('uuid')
-  reservation: string;
+  reservationId: string;
 
   @CreateDateColumn({
     type: 'timestamp',

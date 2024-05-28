@@ -8,7 +8,7 @@ import {
 import { Type } from '../type/type.entity';
 import { Install } from '../install/install.entity';
 
-@Entity('feature')
+@Entity()
 export class Feature {
   @PrimaryGeneratedColumn('uuid')
   featureId: string;
