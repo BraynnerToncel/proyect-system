@@ -12,10 +12,10 @@ export interface IType {
 
 export type ICreateType = Omit<
   IType,
-  'typeId' | 'element' | 'feature' | 'typeState'
+  'typeId' | 'element' | 'feature' | 'typeState' | 'element'
 > &
   Partial<Pick<IType, 'typeId'>> &
-  Pick<IElement, 'elementId'> &
+  // Pick<IElement, 'elementId'> &
   Record<'feature', Array<Pick<IFeature, 'featureId'>>>;
 
 export type IUpdateFeature = Partial<ICreateType>;
