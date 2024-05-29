@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from '@guard/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { FeatureModule } from './feature/feature.module';
+import { TypeModule } from './type/type.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FeatureModule } from './feature/feature.module';
     AuthModule,
     JwtModule,
     FeatureModule,
+    TypeModule,
   ],
   providers: [
     {
