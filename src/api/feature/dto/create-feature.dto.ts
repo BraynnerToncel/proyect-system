@@ -19,7 +19,7 @@ export class CreateFeatureDto {
   featureRequired?: boolean;
 
   @IsString()
-  featureUserName: string;
+  featureUseName: string;
 
   @IsBoolean()
   @IsOptional()

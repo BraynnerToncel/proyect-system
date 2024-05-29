@@ -14,7 +14,7 @@ export class Migrations1716650341772 implements MigrationInterface {
       `CREATE TABLE "install" ("installId" uuid NOT NULL DEFAULT uuid_generate_v4(), "value" character varying(50) NOT NULL, "featureFeatureId" uuid, "elementElementId" uuid, CONSTRAINT "PK_637305acfbf69416fa02533e1bc" PRIMARY KEY ("installId"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "feature" ("featureId" uuid NOT NULL DEFAULT uuid_generate_v4(), "featureName" character varying(50) NOT NULL, "featureState" boolean NOT NULL DEFAULT true, "featureRequired" boolean NOT NULL, "featureUserName" character varying(50) NOT NULL, CONSTRAINT "PK_a9741bb40b605518c6f1541a557" PRIMARY KEY ("featureId"))`,
+      `CREATE TABLE "feature" ("featureId" uuid NOT NULL DEFAULT uuid_generate_v4(), "featureName" character varying(50) NOT NULL, "featureState" boolean NOT NULL DEFAULT true, "featureRequired" boolean NOT NULL, "featureUseName" character varying(50) NOT NULL, CONSTRAINT "PK_a9741bb40b605518c6f1541a557" PRIMARY KEY ("featureId"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "type" ("typeId" uuid NOT NULL DEFAULT uuid_generate_v4(), "typeName" character varying(50) NOT NULL, "typeDescription" character varying(50), "typeState" character varying NOT NULL DEFAULT true, CONSTRAINT "PK_3a25b3b7490c51932eb4d7b6491" PRIMARY KEY ("typeId"))`,

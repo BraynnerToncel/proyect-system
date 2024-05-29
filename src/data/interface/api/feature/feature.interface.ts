@@ -6,7 +6,7 @@ export interface IFeature {
   featureName: string;
   featureState: boolean;
   featureRequired: boolean;
-  featureUserName: string;
+  featureUseName: string;
   type: Array<IType>;
   install: IInstall;
 }
@@ -16,7 +16,7 @@ export type ICreateFeature = Omit<
   'featureId' | 'type' | 'install' | 'featureState' | 'featureState'
 > & {
   featureName: string;
-  featureUserName: string;
+  featureUseName: string;
 };
 
 export type IUpdateFeature = Partial<ICreateFeature>;

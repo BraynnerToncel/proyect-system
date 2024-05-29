@@ -23,7 +23,7 @@ export class Feature {
   featureRequired: boolean;
 
   @Column({ type: 'varchar', length: 50, nullable: false })
-  featureUserName: string;
+  featureUseName: string;
 
   @ManyToMany(() => Type, (type) => type.feature)
   type: Array<Type>;
