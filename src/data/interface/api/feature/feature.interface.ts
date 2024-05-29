@@ -13,10 +13,10 @@ export interface IFeature {
 
 export type ICreateFeature = Omit<
   IFeature,
-  'featureId' | 'type' | 'install' | 'featureState'
-> &
-  Partial<Pick<IFeature, 'featureState'>> &
-  Pick<IInstall, 'installId'> &
-  Record<'type', Array<Pick<IType, 'typeId'>>>;
+  'featureId' | 'type' | 'install' | 'featureState' | 'featureState'
+> & {
+  featureName: string;
+  featureUserName: string;
+};
 
 export type IUpdateFeature = Partial<ICreateFeature>;
