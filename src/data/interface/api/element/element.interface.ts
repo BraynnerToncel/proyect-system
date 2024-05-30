@@ -18,8 +18,6 @@ export type ICreateElement = Omit<
   'elementId' | 'loan' | 'type' | 'install' | 'elementState'
 > &
   Partial<Pick<IElement, 'elementState'>> &
-  Pick<ILoan, 'loanId'> &
-  Pick<IType, 'typeId'> &
-  Pick<IInstall, 'installId'>;
+  Pick<IType, 'typeId'>;
 
 export type IUpdateElement = Partial<ICreateElement>;

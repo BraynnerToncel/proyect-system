@@ -20,8 +20,9 @@ export class FeatureService {
       featureName: featureData.featureName.toLowerCase(),
       featureState: featureData.featureState ?? true,
       featureRequired: featureData.featureRequired ?? true,
-      featureUserName: featureData.featureUserName.toLowerCase(),
+      featureUserName: featureData.featureUseName.toLowerCase(),
     });
+
     const feature = await this.featureRepository.findOne({
       loadEagerRelations: false,
       where: { featureId },
