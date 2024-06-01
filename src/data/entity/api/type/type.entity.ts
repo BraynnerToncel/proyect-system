@@ -30,7 +30,6 @@ export class Type {
 
   @ManyToMany(() => Feature, (feature) => feature.type, {
     onDelete: 'CASCADE',
-    eager: true,
   })
   @JoinTable({ name: 'types_has_features' })
   feature: Array<Feature>;

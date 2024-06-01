@@ -16,64 +16,80 @@ export class ElementService {
   private readonly elementRepository: Repository<Element>;
   @InjectRepository(Type)
   private readonly typeRepository: Repository<Type>;
-  @InjectRepository(Feature)
-  private readonly featureRepository: Repository<Feature>;
-  // private readonly dataSource: DataSource;
   constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createElementDto: CreateElementDto) {
-    console.log('createElementDto :>> ', createElementDto);
-    const { typeId, featureIds, elementName, elementState } = createElementDto;
+    const { typeId, featureInstall, elementName, elementState } =
+      createElementDto;
 
     const type = await this.typeRepository.findOne({
       where: { typeId },
+      relations: { feature: true },
     });
+
     if (!type) {
       throw new BadRequestException(`Type with ID ${typeId} not found`);
     }
 
-    const typeFeatureIds = type.feature.map((feature) => feature.featureId);
-    const validFeatures = featureIds.some((featureId) =>
-      typeFeatureIds.includes(featureId),
-    );
+    featureInstall.forEach(({ featureId, value }) => {
+      if (!value?.trim()) {
+        throw new BadRequestException(
+          `Feature with ID ${featureId} must have a non-empty value.`,
+        );
+      }
+    });
 
-    if (!validFeatures) {
-      throw new BadRequestException(
-        `None of the provided features are associated with Type with ID ${typeId}`,
-      );
-    }
     const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const element = this.elementRepository.create({
-      elementName,
-      elementState,
-      type,
-    });
-    await queryRunner.manager.save(element);
-
-    for (const featureId of featureIds) {
-      const feature = await this.featureRepository.findOne({
-        where: { featureId },
+    try {
+      const element = await queryRunner.manager.save(Element, {
+        elementName,
+        elementState,
+        type,
       });
-      if (!feature) {
-        throw new BadRequestException(`Feature with ID ${featureId} not found`);
+
+      for (const { featureId, value } of featureInstall) {
+        const featureEntity = await queryRunner.manager.findOne(Feature, {
+          where: { featureId },
+        });
+
+        if (!featureEntity) {
+          throw new BadRequestException(
+            `Feature with ID ${featureId} not found`,
+          );
+        }
+
+        await queryRunner.manager.save(Install, {
+          element,
+          feature: featureEntity,
+          value,
+        });
       }
-      console.log('feature :>> ', feature);
-      const install = new Install();
-      install.element = element;
-      install.feature = feature;
-      install.value = ` ${feature}`;
-      await queryRunner.manager.save(install);
+
+      await queryRunner.commitTransaction();
+
+      const rElement = await queryRunner.manager.findOne(Element, {
+        where: { elementId: element.elementId },
+        relations: ['install', 'install.feature'],
+      });
+
+      if (!rElement) {
+        throw new BadRequestException(
+          `Element with ID ${element.elementId} not found`,
+        );
+      }
+
+      return rElement;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    await queryRunner.commitTransaction();
-
-    return { element, Install };
   }
 
   async findAll(): Promise<Array<IElement>> {

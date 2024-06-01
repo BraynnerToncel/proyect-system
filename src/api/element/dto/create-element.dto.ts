@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -7,13 +8,13 @@ import {
   IsUUID,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 
 export class CreateElementDto {
   @IsString()
   @MinLength(4)
   @MaxLength(45)
-  @IsNotEmpty()
   @IsNotEmpty()
   elementName: string;
 
@@ -27,5 +28,14 @@ export class CreateElementDto {
 
   @IsArray()
   @IsNotEmpty()
-  featureIds: Array<Array<string>>;
+  @ValidateNested({ each: true })
+  @Type(() => FeatureDto)
+  featureInstall: FeatureDto[];
+}
+
+class FeatureDto {
+  @IsUUID()
+  featureId: string;
+  @IsString()
+  value: string;
 }

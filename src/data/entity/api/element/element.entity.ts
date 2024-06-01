@@ -31,6 +31,6 @@ export class Element {
   @ManyToOne(() => Type, (type) => type.element)
   type: Type;
 
-  @OneToMany(() => Install, (install) => install.element)
+  @OneToMany(() => Install, (install) => install.element, { eager: true })
   install: Install;
 }
