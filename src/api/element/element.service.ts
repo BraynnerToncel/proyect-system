@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateElementDto } from './dto/update-element.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Element } from '@entity/api/element/element.entity';
-import { DataSource, DeleteResult, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { IElement } from '@interface/api/element/element.interface';
 import { CreateElementDto } from './dto/create-element.dto';
@@ -28,8 +28,9 @@ export class ElementService {
       where: { typeId },
       relations: { feature: true },
     });
+
     if (!type) {
-      throw new BadRequestException(`Type with ID ${typeId} not found`);
+      return `Type with ID ${typeId} not found`;
     }
     const requiredFeaturesValid = type.feature.every((feature) => {
       if (feature.featureRequired) {
@@ -43,9 +44,7 @@ export class ElementService {
       return true;
     });
     if (!requiredFeaturesValid) {
-      throw new BadRequestException(
-        `All required features must have a value for Type with ID ${typeId}`,
-      );
+      return `All required features must have a value for Type with ID ${typeId}`;
     }
 
     featureInstall.some((features) => {
@@ -55,7 +54,7 @@ export class ElementService {
         (feature.featureRequired && value !== '' && value !== null) ||
         (!feature.featureRequired && value !== '');
       if (!isValueValid) {
-        throw new BadRequestException(`error`);
+        return `error, feature must have a value ${featureId}`;
       }
     });
 
@@ -87,7 +86,7 @@ export class ElementService {
       return rElement;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw error;
+      return error;
     } finally {
       await queryRunner.release();
     }
@@ -107,37 +106,102 @@ export class ElementService {
     });
   }
 
-  async update(
-    elementId: string,
-    updateElementDto: UpdateElementDto,
-  ): Promise<IElement> {
-    await this.elementRepository.save({ elementId, ...updateElementDto });
-
-    const type = await this.elementRepository.findOne({
-      where: { elementId },
-      relations: { type: true },
+  async update(Idelement: string, updateElementDto: UpdateElementDto) {
+    const { typeId, featureInstall, elementName, elementState } =
+      updateElementDto;
+    const element = await this.elementRepository.findOne({
+      where: { elementId: Idelement },
+      relations: ['install'],
     });
-
-    this.eventEmitter.emit('emit', {
-      channel: 'type/data',
-      data: { ...type },
+    if (!element) {
+      return `Element with ID ${Idelement} not found`;
+    }
+    const type = await this.typeRepository.findOne({
+      where: { typeId },
+      relations: { feature: true },
     });
-
-    return type;
+    if (!type) {
+      return `Type with ID ${typeId} not found`;
+    }
+    const requiredFeaturesValid = type.feature.every((feature) => {
+      if (feature.featureRequired) {
+        const featureDto = featureInstall.find(
+          (f) => f.featureId === feature.featureId,
+        );
+        if (!featureDto || !featureDto.value) {
+          return false;
+        }
+      }
+      return true;
+    });
+    if (!requiredFeaturesValid) {
+      return `All required features must have a value for Type with ID ${typeId}`;
+    }
+    featureInstall.some((features) => {
+      const { featureId, value } = features;
+      const feature = type.feature.find((f) => f.featureId === featureId);
+      const isValueValid =
+        (feature.featureRequired && value !== '' && value !== null) ||
+        (!feature.featureRequired && value !== '');
+      if (!isValueValid) {
+        return `error`;
+      }
+    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.delete(Install, {
+        element,
+      });
+      element.elementName = elementName;
+      element.elementState = elementState;
+      element.type = type;
+      await queryRunner.manager.save(element);
+      for (const featureDto of featureInstall) {
+        const { featureId, value } = featureDto;
+        const featureEntity = await queryRunner.manager.findOne(Feature, {
+          where: { featureId },
+        });
+        await queryRunner.manager.save(Install, {
+          element,
+          feature: featureEntity,
+          value: value,
+        });
+      }
+      const rElement = await queryRunner.manager.find(Element, {
+        where: { elementId: element.elementId },
+        relations: ['install', 'install.feature'],
+      });
+      await queryRunner.commitTransaction();
+      return rElement;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      return error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async remove(elementId: string): Promise<string> {
-    const deleteResult: DeleteResult =
-      await this.elementRepository.delete(elementId);
-
-    if (!deleteResult.affected)
-      throw new BadRequestException(`element ${elementId} was not deleted `);
-
-    this.eventEmitter.emit('emit', {
-      channel: 'element/data',
-      data: { elementId, isDelete: true },
+    const element = await this.elementRepository.findOne({
+      where: { elementId },
+      relations: ['install'],
     });
-
-    return elementId;
+    if (!element) {
+      throw new NotFoundException();
+    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.delete(Install, { element });
+      await queryRunner.manager.delete(Element, { elementId });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+    return `element with ID ${elementId} has been deleteda`;
   }
 }
