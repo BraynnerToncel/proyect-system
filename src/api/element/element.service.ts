@@ -47,19 +47,18 @@ export class ElementService {
         `All required features must have a value for Type with ID ${typeId}`,
       );
     }
-    for (const featureDto of featureInstall) {
-      const { featureId, value } = featureDto;
+
+    featureInstall.some((features) => {
+      const { featureId, value } = features;
       const feature = type.feature.find((f) => f.featureId === featureId);
-      if (!feature) {
-        throw new BadRequestException(`Feature with ID ${featureId} not found`);
-      }
       const isValueValid =
-        (feature.featureRequired && value !== '') ||
-        (!feature.featureRequired && value !== '' && value !== null);
+        (feature.featureRequired && value !== '' && value !== null) ||
+        (!feature.featureRequired && value !== '');
       if (!isValueValid) {
-        throw new BadRequestException(`Feature with ID ${featureId} value '?'`);
+        throw new BadRequestException(`error`);
       }
-    }
+    });
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     try {
@@ -79,11 +78,12 @@ export class ElementService {
           value: value,
         });
       }
-      await queryRunner.commitTransaction();
       const rElement = await queryRunner.manager.find(Element, {
         where: { elementId: element.elementId },
         relations: ['install', 'install.feature'],
       });
+      await queryRunner.commitTransaction();
+
       return rElement;
     } catch (error) {
       await queryRunner.rollbackTransaction();

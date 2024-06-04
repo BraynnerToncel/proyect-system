@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { Reservation } from '../resevation/reservation.entity';
 import { Loan } from '../loan/loan.entity';
@@ -13,11 +12,10 @@ import { Type } from '../type/type.entity';
 import { Install } from '../install/install.entity';
 
 @Entity()
-@Unique(['elementName'])
 export class Element {
   @PrimaryGeneratedColumn('uuid')
   elementId: string;
-  @Column({ type: 'varchar', length: 50, nullable: false })
+  @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
   elementName: string;
   @Column({ type: 'boolean', nullable: false })
   elementState: boolean;
