@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateElementDto } from './dto/update-element.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Element } from '@entity/api/element/element.entity';
@@ -30,7 +34,7 @@ export class ElementService {
     });
 
     if (!type) {
-      return `Type with ID ${typeId} not found`;
+      throw new BadRequestException(`Type with ID ${typeId} not found`);
     }
     const requiredFeaturesValid = type.feature.every((feature) => {
       if (feature.featureRequired) {
@@ -44,7 +48,9 @@ export class ElementService {
       return true;
     });
     if (!requiredFeaturesValid) {
-      return `All required features must have a value for Type with ID ${typeId}`;
+      throw new BadRequestException(
+        `All required features must have a value for Type with ID ${typeId}`,
+      );
     }
 
     featureInstall.some((features) => {
@@ -54,7 +60,7 @@ export class ElementService {
         (feature.featureRequired && value !== '' && value !== null) ||
         (!feature.featureRequired && value !== '');
       if (!isValueValid) {
-        return `error, feature must have a value ${featureId}`;
+        throw new BadRequestException(`error`);
       }
     });
 
@@ -86,7 +92,7 @@ export class ElementService {
       return rElement;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return error;
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -114,14 +120,14 @@ export class ElementService {
       relations: ['install'],
     });
     if (!element) {
-      return `Element with ID ${Idelement} not found`;
+      throw new NotFoundException(`Element with ID ${Idelement} not found`);
     }
     const type = await this.typeRepository.findOne({
       where: { typeId },
       relations: { feature: true },
     });
     if (!type) {
-      return `Type with ID ${typeId} not found`;
+      throw new BadRequestException(`Type with ID ${typeId} not found`);
     }
     const requiredFeaturesValid = type.feature.every((feature) => {
       if (feature.featureRequired) {
@@ -135,7 +141,9 @@ export class ElementService {
       return true;
     });
     if (!requiredFeaturesValid) {
-      return `All required features must have a value for Type with ID ${typeId}`;
+      throw new BadRequestException(
+        `All required features must have a value for Type with ID ${typeId}`,
+      );
     }
     featureInstall.some((features) => {
       const { featureId, value } = features;
@@ -144,7 +152,7 @@ export class ElementService {
         (feature.featureRequired && value !== '' && value !== null) ||
         (!feature.featureRequired && value !== '');
       if (!isValueValid) {
-        return `error`;
+        throw new BadRequestException(`error`);
       }
     });
     const queryRunner = this.dataSource.createQueryRunner();
@@ -176,7 +184,7 @@ export class ElementService {
       return rElement;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return error;
+      throw error;
     } finally {
       await queryRunner.release();
     }
