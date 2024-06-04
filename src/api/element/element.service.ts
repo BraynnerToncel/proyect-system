@@ -24,65 +24,66 @@ export class ElementService {
   async create(createElementDto: CreateElementDto) {
     const { typeId, featureInstall, elementName, elementState } =
       createElementDto;
-
     const type = await this.typeRepository.findOne({
       where: { typeId },
       relations: { feature: true },
     });
-
     if (!type) {
       throw new BadRequestException(`Type with ID ${typeId} not found`);
     }
-
-    featureInstall.forEach(({ featureId, value }) => {
-      if (!value?.trim()) {
-        throw new BadRequestException(
-          `Feature with ID ${featureId} must have a non-empty value.`,
+    const requiredFeaturesValid = type.feature.every((feature) => {
+      if (feature.featureRequired) {
+        const featureDto = featureInstall.find(
+          (f) => f.featureId === feature.featureId,
         );
+        if (!featureDto || !featureDto.value) {
+          return false;
+        }
       }
+      return true;
     });
-
+    if (!requiredFeaturesValid) {
+      throw new BadRequestException(
+        `All required features must have a value for Type with ID ${typeId}`,
+      );
+    }
+    for (const featureDto of featureInstall) {
+      const { featureId, value } = featureDto;
+      const feature = type.feature.find((f) => f.featureId === featureId);
+      if (!feature) {
+        throw new BadRequestException(`Feature with ID ${featureId} not found`);
+      }
+      const isValueValid =
+        (feature.featureRequired && value !== '') ||
+        (!feature.featureRequired && value !== '' && value !== null);
+      if (!isValueValid) {
+        throw new BadRequestException(`Feature with ID ${featureId} value '?'`);
+      }
+    }
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
-
     try {
       const element = await queryRunner.manager.save(Element, {
         elementName,
         elementState,
         type,
       });
-
-      for (const { featureId, value } of featureInstall) {
+      for (const featureDto of featureInstall) {
+        const { featureId, value } = featureDto;
         const featureEntity = await queryRunner.manager.findOne(Feature, {
           where: { featureId },
         });
-
-        if (!featureEntity) {
-          throw new BadRequestException(
-            `Feature with ID ${featureId} not found`,
-          );
-        }
-
         await queryRunner.manager.save(Install, {
           element,
           feature: featureEntity,
-          value,
+          value: value,
         });
       }
-
       await queryRunner.commitTransaction();
-
-      const rElement = await queryRunner.manager.findOne(Element, {
+      const rElement = await queryRunner.manager.find(Element, {
         where: { elementId: element.elementId },
         relations: ['install', 'install.feature'],
       });
-
-      if (!rElement) {
-        throw new BadRequestException(
-          `Element with ID ${element.elementId} not found`,
-        );
-      }
-
       return rElement;
     } catch (error) {
       await queryRunner.rollbackTransaction();
