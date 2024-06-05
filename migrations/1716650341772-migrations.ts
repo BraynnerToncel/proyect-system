@@ -20,19 +20,19 @@ export class Migrations1716650341772 implements MigrationInterface {
       `CREATE TABLE "type" ("typeId" uuid NOT NULL DEFAULT uuid_generate_v4(), "typeName" character varying(50) NOT NULL, "typeDescription" character varying(50), "typeState" character varying NOT NULL DEFAULT true, CONSTRAINT "PK_3a25b3b7490c51932eb4d7b6491" PRIMARY KEY ("typeId"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "element" ("elementId" uuid NOT NULL DEFAULT uuid_generate_v4(), "elementName" character varying(50) NOT NULL, "elementState" boolean NOT NULL, "typeTypeId" uuid, CONSTRAINT "PK_41aa81f006b870bc490b86ecb7f" PRIMARY KEY ("elementId"))`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "loan" ("loanId" uuid NOT NULL DEFAULT uuid_generate_v4(), "loanCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "loanReturnAt" TIMESTAMP NOT NULL DEFAULT now(), "loanState" boolean NOT NULL DEFAULT true, "requestedUserUserId" uuid, "deliveryUserUserId" uuid, "receivedUserUserId" uuid, "typeOfUseTypeOfUseId" uuid, "elementElementId" uuid, CONSTRAINT "PK_5ae96496534c6e154001892aced" PRIMARY KEY ("loanId"))`,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "user" ("userId" uuid NOT NULL DEFAULT uuid_generate_v4(), "userFullName" character varying(32) NOT NULL, "userLastName" character varying(32) NOT NULL, "username" character varying(24) NOT NULL, "userEmail" character varying(32) NOT NULL, "userPassword" character varying(60) NOT NULL, "userState" boolean NOT NULL DEFAULT true, "roleRoleId" uuid, CONSTRAINT "PK_d72ea127f30e21753c9e229891e" PRIMARY KEY ("userId"))`,
+      `CREATE TABLE "element" ("elementId" uuid NOT NULL DEFAULT uuid_generate_v4(), "elementName" character varying(50) NOT NULL, "elementState" boolean NOT NULL, "typeTypeId" uuid, CONSTRAINT "UQ_c4a59a4b5b0821c1506931d5a3f" UNIQUE ("elementName"), CONSTRAINT "PK_41aa81f006b870bc490b86ecb7f" PRIMARY KEY ("elementId"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "reservation" ("reservationId" uuid NOT NULL DEFAULT uuid_generate_v4(), "reservationCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationReturnAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationState" boolean NOT NULL DEFAULT true, "userUserId" uuid, "typeofuseTypeOfUseId" uuid, "elementElementId" uuid, CONSTRAINT "PK_afb522c4e412047329fd5806dc2" PRIMARY KEY ("reservationId"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "type_of_use" ("typeOfUseId" uuid NOT NULL DEFAULT uuid_generate_v4(), "typeOfUseName" character varying(20) NOT NULL, "typeOfUseConcept" character varying(50) NOT NULL, CONSTRAINT "PK_562028de392fde88fbec098e506" PRIMARY KEY ("typeOfUseId"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "loan" ("loanId" uuid NOT NULL DEFAULT uuid_generate_v4(), "loanCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "loanReturnAt" TIMESTAMP NOT NULL DEFAULT now(), "loanState" boolean NOT NULL DEFAULT true, "requestedUserUserId" uuid, "deliveryUserUserId" uuid, "receivedUserUserId" uuid, "typeOfUseTypeOfUseId" uuid, "elementElementId" uuid, CONSTRAINT "PK_5ae96496534c6e154001892aced" PRIMARY KEY ("loanId"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "user" ("userId" uuid NOT NULL DEFAULT uuid_generate_v4(), "userFullName" character varying(32) NOT NULL, "userLastName" character varying(32) NOT NULL, "username" character varying(24) NOT NULL, "userEmail" character varying(32) NOT NULL, "userPassword" character varying(60) NOT NULL, "userState" boolean NOT NULL DEFAULT true, "roleRoleId" uuid, CONSTRAINT "PK_d72ea127f30e21753c9e229891e" PRIMARY KEY ("userId"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "roles_has_permissions" ("roleRoleId" uuid NOT NULL, "permissionPermissionId" uuid NOT NULL, CONSTRAINT "PK_af15ccac31be8675c639966fd4c" PRIMARY KEY ("roleRoleId", "permissionPermissionId"))`,
@@ -62,6 +62,15 @@ export class Migrations1716650341772 implements MigrationInterface {
       `ALTER TABLE "element" ADD CONSTRAINT "FK_b40e815fb9d2527236070814087" FOREIGN KEY ("typeTypeId") REFERENCES "type"("typeId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
+      `ALTER TABLE "reservation" ADD CONSTRAINT "FK_621ae76640bd1a38c2cc1f5f622" FOREIGN KEY ("userUserId") REFERENCES "user"("userId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "reservation" ADD CONSTRAINT "FK_5eb56623bfd4a9b19db71aacc0b" FOREIGN KEY ("typeofuseTypeOfUseId") REFERENCES "type_of_use"("typeOfUseId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "reservation" ADD CONSTRAINT "FK_fde88f2b312910500726182924e" FOREIGN KEY ("elementElementId") REFERENCES "element"("elementId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "loan" ADD CONSTRAINT "FK_539f364619edcb843e5b931e569" FOREIGN KEY ("requestedUserUserId") REFERENCES "user"("userId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
@@ -78,15 +87,6 @@ export class Migrations1716650341772 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "user" ADD CONSTRAINT "FK_ffe3092db843bd8f90fcfe97da7" FOREIGN KEY ("roleRoleId") REFERENCES "role"("roleId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "reservation" ADD CONSTRAINT "FK_621ae76640bd1a38c2cc1f5f622" FOREIGN KEY ("userUserId") REFERENCES "user"("userId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "reservation" ADD CONSTRAINT "FK_5eb56623bfd4a9b19db71aacc0b" FOREIGN KEY ("typeofuseTypeOfUseId") REFERENCES "type_of_use"("typeOfUseId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "reservation" ADD CONSTRAINT "FK_fde88f2b312910500726182924e" FOREIGN KEY ("elementElementId") REFERENCES "element"("elementId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "roles_has_permissions" ADD CONSTRAINT "FK_3beb30d0cc8790859f16ad9ff96" FOREIGN KEY ("roleRoleId") REFERENCES "role"("roleId") ON DELETE CASCADE ON UPDATE CASCADE`,
@@ -116,15 +116,6 @@ export class Migrations1716650341772 implements MigrationInterface {
       `ALTER TABLE "roles_has_permissions" DROP CONSTRAINT "FK_3beb30d0cc8790859f16ad9ff96"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "reservation" DROP CONSTRAINT "FK_fde88f2b312910500726182924e"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "reservation" DROP CONSTRAINT "FK_5eb56623bfd4a9b19db71aacc0b"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "reservation" DROP CONSTRAINT "FK_621ae76640bd1a38c2cc1f5f622"`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "user" DROP CONSTRAINT "FK_ffe3092db843bd8f90fcfe97da7"`,
     );
     await queryRunner.query(
@@ -141,6 +132,15 @@ export class Migrations1716650341772 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "loan" DROP CONSTRAINT "FK_539f364619edcb843e5b931e569"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "reservation" DROP CONSTRAINT "FK_fde88f2b312910500726182924e"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "reservation" DROP CONSTRAINT "FK_5eb56623bfd4a9b19db71aacc0b"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "reservation" DROP CONSTRAINT "FK_621ae76640bd1a38c2cc1f5f622"`,
     );
     await queryRunner.query(
       `ALTER TABLE "element" DROP CONSTRAINT "FK_b40e815fb9d2527236070814087"`,
@@ -165,10 +165,10 @@ export class Migrations1716650341772 implements MigrationInterface {
       `DROP INDEX "public"."IDX_3beb30d0cc8790859f16ad9ff9"`,
     );
     await queryRunner.query(`DROP TABLE "roles_has_permissions"`);
-    await queryRunner.query(`DROP TABLE "type_of_use"`);
-    await queryRunner.query(`DROP TABLE "reservation"`);
     await queryRunner.query(`DROP TABLE "user"`);
     await queryRunner.query(`DROP TABLE "loan"`);
+    await queryRunner.query(`DROP TABLE "type_of_use"`);
+    await queryRunner.query(`DROP TABLE "reservation"`);
     await queryRunner.query(`DROP TABLE "element"`);
     await queryRunner.query(`DROP TABLE "type"`);
     await queryRunner.query(`DROP TABLE "feature"`);

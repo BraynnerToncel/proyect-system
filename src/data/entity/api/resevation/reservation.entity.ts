@@ -26,7 +26,7 @@ export class Reservation {
     default: () => 'CURRENT_TIMESTAMP',
     nullable: false,
   })
-  reservationReturnAt: Date;
+  reservationAt: Date;
 
   @Column({ type: 'boolean', default: true, nullable: false })
   reservationState: boolean;

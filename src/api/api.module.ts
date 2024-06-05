@@ -11,6 +11,8 @@ import { FeatureModule } from './feature/feature.module';
 import { TypeModule } from './type/type.module';
 import { ElementModule } from './element/element.module';
 import { InstallModule } from './install/install.module';
+import { TypeOfUseModule } from './type-of-use/type-of-use.module';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { InstallModule } from './install/install.module';
     TypeModule,
     ElementModule,
     InstallModule,
+    TypeOfUseModule,
+    ReservationModule,
   ],
   providers: [
     {

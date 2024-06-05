@@ -5,7 +5,7 @@ import { IUser } from '../user/user.interface';
 export interface IReservation {
   reservationId: string;
   reservationCreateAt: Date;
-  reservationReturnAt: Date;
+  reservationAt: Date;
   reservationState: boolean;
   user: IUser;
   typeofuse: ITypeOfUse;
