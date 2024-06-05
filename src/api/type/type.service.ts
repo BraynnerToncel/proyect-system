@@ -12,6 +12,7 @@ export class TypeService {
   @InjectRepository(Type)
   private readonly typeRepository: Repository<Type>;
   constructor(private readonly eventEmitter: EventEmitter2) {}
+
   async create(createTypeDto: CreateTypeDto): Promise<IType> {
     const { typeId }: IType = await this.typeRepository.save({
       ...createTypeDto,

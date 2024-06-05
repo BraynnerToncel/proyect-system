@@ -23,7 +23,6 @@ export class Reservation {
 
   @CreateDateColumn({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
     nullable: false,
   })
   reservationAt: Date;
