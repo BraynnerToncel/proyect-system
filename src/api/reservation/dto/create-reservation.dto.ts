@@ -11,10 +11,6 @@ export class CreateReservationDto {
 
   @IsUUID()
   @IsNotEmpty()
-  userId: string;
-
-  @IsUUID()
-  @IsNotEmpty()
   typeOfUseId: string;
 
   @IsUUID()

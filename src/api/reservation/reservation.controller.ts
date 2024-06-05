@@ -16,12 +16,12 @@ import { Public } from '@decorator/routes-public.decorator';
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
   @Public()
-  @Post(':id')
+  @Post(':userId')
   create(
-    @Param('id') id: string,
+    @Param('userId') userId: string,
     @Body() createReservationDto: CreateReservationDto,
   ) {
-    return this.reservationService.create(id, createReservationDto);
+    return this.reservationService.create(userId, createReservationDto);
   }
   @Public()
   @Get('list')
@@ -31,7 +31,7 @@ export class ReservationController {
   @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.reservationService.findOne(+id);
+    return this.reservationService.findOne(id);
   }
   @Public()
   @Put(':id')

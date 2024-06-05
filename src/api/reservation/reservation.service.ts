@@ -23,15 +23,17 @@ export class ReservationService {
   ) {}
 
   async create(
-    id: string,
+    userId: string,
     createReservationDto: CreateReservationDto,
   ): Promise<Reservation> {
     const { reservationAt, reservationState, typeOfUseId, elementId } =
       createReservationDto;
 
-    const user = await this.userRepository.findOne({ where: { userId: id } });
+    const user = await this.userRepository.findOne({
+      where: { userId: userId },
+    });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     const typeofuse = await this.typeOfUseRepository.findOne({
@@ -56,23 +58,24 @@ export class ReservationService {
       element,
     });
 
-    // Save the reservation entity
     return await this.reservationRepository.save(reservation);
   }
 
   async findAll() {
-    return `This action returns all reservation`;
+    return await this.reservationRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} reservation`;
+  async findOne(reservationId: string) {
+    return await this.reservationRepository.findOne({
+      where: { reservationId },
+    });
   }
 
-  update(id: number, updateReservationDto: UpdateReservationDto) {
+  async update(id: number, updateReservationDto: UpdateReservationDto) {
     return `This action updates a #${id} reservation`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} reservation`;
   }
 }

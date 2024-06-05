@@ -2,7 +2,6 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Migrations1716650341772 implements MigrationInterface {
   name = 'Migrations1716650341772';
-
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE TABLE "permission" ("permissionId" uuid NOT NULL DEFAULT uuid_generate_v4(), "permissionName" character varying(100) NOT NULL, "permissionDescription" character varying(200) NOT NULL, "permissionState" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_86b314be9c1be5c62b3a9d97ae4" PRIMARY KEY ("permissionId"))`,
@@ -23,7 +22,7 @@ export class Migrations1716650341772 implements MigrationInterface {
       `CREATE TABLE "element" ("elementId" uuid NOT NULL DEFAULT uuid_generate_v4(), "elementName" character varying(50) NOT NULL, "elementState" boolean NOT NULL, "typeTypeId" uuid, CONSTRAINT "UQ_c4a59a4b5b0821c1506931d5a3f" UNIQUE ("elementName"), CONSTRAINT "PK_41aa81f006b870bc490b86ecb7f" PRIMARY KEY ("elementId"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "reservation" ("reservationId" uuid NOT NULL DEFAULT uuid_generate_v4(), "reservationCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationAt" TIMESTAMP NOT NULL, "reservationState" boolean NOT NULL DEFAULT true, "userUserId" uuid, "typeofuseTypeOfUseId" uuid, "elementElementId" uuid, CONSTRAINT "PK_afb522c4e412047329fd5806dc2" PRIMARY KEY ("reservationId"))`,
+      `CREATE TABLE "reservation" ("reservationId" uuid NOT NULL DEFAULT uuid_generate_v4(), "reservationCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationState" boolean NOT NULL DEFAULT true, "userUserId" uuid, "typeofuseTypeOfUseId" uuid, "elementElementId" uuid, CONSTRAINT "PK_afb522c4e412047329fd5806dc2" PRIMARY KEY ("reservationId"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "type_of_use" ("typeOfUseId" uuid NOT NULL DEFAULT uuid_generate_v4(), "typeOfUseName" character varying(20) NOT NULL, "typeOfUseConcept" character varying(50) NOT NULL, CONSTRAINT "PK_562028de392fde88fbec098e506" PRIMARY KEY ("typeOfUseId"))`,

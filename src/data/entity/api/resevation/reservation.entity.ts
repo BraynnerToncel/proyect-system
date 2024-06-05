@@ -4,12 +4,14 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
 import { Element } from '../element/element.entity';
 
 @Entity()
+@Unique(['reservationAt', 'element'])
 export class Reservation {
   @PrimaryGeneratedColumn('uuid')
   reservationId: string;
