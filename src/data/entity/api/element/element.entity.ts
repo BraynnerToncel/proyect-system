@@ -17,7 +17,8 @@ export class Element {
   elementId: string;
   @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
   elementName: string;
-  @Column({ type: 'boolean', nullable: false })
+
+  @Column({ type: 'boolean', default: true })
   elementState: boolean;
 
   @OneToMany(() => Reservation, (reservation) => reservation.element)

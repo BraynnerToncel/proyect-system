@@ -6,7 +6,7 @@ export interface IReservation {
   reservationId: string;
   reservationCreateAt: Date;
   reservationAt: Date;
-  reservationState: boolean;
+  reservationState: number;
   user: IUser;
   typeofuse: ITypeOfUse;
   element: IElement;

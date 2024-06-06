@@ -17,13 +17,15 @@ import {
 import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { IUser } from '@interface/api/user/user.interface';
+import { Public } from '@decorator/routes-public.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @PermissionRequired(ValidPermission.settings_users_create)
+  // @PermissionRequired(ValidPermission.settings_users_create)
+  @Public()
   public create(@Body() userData: CreateUserDto): Promise<IUser> {
     return this.userService.create(userData);
   }

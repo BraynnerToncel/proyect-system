@@ -26,8 +26,7 @@ export class ElementService {
   ) {}
 
   async create(createElementDto: CreateElementDto) {
-    const { typeId, featureInstall, elementName, elementState } =
-      createElementDto;
+    const { typeId, featureInstall, elementName } = createElementDto;
     const type = await this.typeRepository.findOne({
       where: { typeId },
       relations: { feature: true },
@@ -69,7 +68,7 @@ export class ElementService {
     try {
       const element = await queryRunner.manager.save(Element, {
         elementName,
-        elementState,
+
         type,
       });
       for (const featureDto of featureInstall) {
@@ -113,8 +112,7 @@ export class ElementService {
   }
 
   async update(Idelement: string, updateElementDto: UpdateElementDto) {
-    const { typeId, featureInstall, elementName, elementState } =
-      updateElementDto;
+    const { typeId, featureInstall, elementName } = updateElementDto;
     const element = await this.elementRepository.findOne({
       where: { elementId: Idelement },
       relations: ['install'],
@@ -162,7 +160,7 @@ export class ElementService {
         element,
       });
       element.elementName = elementName;
-      element.elementState = elementState;
+      // element.elementState = elementState;
       element.type = type;
       await queryRunner.manager.save(element);
       for (const featureDto of featureInstall) {

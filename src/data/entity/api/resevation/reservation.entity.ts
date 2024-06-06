@@ -9,6 +9,7 @@ import {
 import { User } from '../user/user.entity';
 import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
 import { Element } from '../element/element.entity';
+import { EReservationState } from '@constant/reservationState/reservationState.constant';
 
 @Entity()
 @Unique(['reservationAt', 'element'])
@@ -29,8 +30,12 @@ export class Reservation {
   })
   reservationAt: Date;
 
-  @Column({ type: 'boolean', default: true, nullable: false })
-  reservationState: boolean;
+  @Column({
+    type: 'enum',
+    enum: EReservationState,
+    default: EReservationState.Pending,
+  })
+  reservationState: EReservationState;
 
   @ManyToOne(() => User, (user) => user.reservation)
   user: User;

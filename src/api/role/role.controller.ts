@@ -13,12 +13,14 @@ import { UpdateRoleDto, UpdateRoleStateDto } from './dto/update-role.dto';
 import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { IRole } from '@interface/api/role/role.interface';
+import { Public } from '@decorator/routes-public.decorator';
 
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
   @Post()
-  @PermissionRequired(ValidPermission.settings_roles_create)
+  @Public()
+  // @PermissionRequired(ValidPermission.settings_roles_create)
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.roleService.create(createRoleDto);
   }

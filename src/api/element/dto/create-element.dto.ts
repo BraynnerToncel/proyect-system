@@ -1,9 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsBoolean,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -17,10 +15,6 @@ export class CreateElementDto {
   @MaxLength(45)
   @IsNotEmpty()
   elementName: string;
-
-  @IsOptional()
-  @IsBoolean()
-  elementState: boolean;
 
   @IsUUID()
   @IsNotEmpty()
