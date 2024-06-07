@@ -3,14 +3,18 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { ElementService } from './element.service';
 import { CreateElementDto } from './dto/create-element.dto';
-import { UpdateElementDto } from './dto/update-element.dto';
+import {
+  CancellationElementDto,
+  UpdateElementDto,
+} from './dto/update-element.dto';
 import { Public } from '@decorator/routes-public.decorator';
+import { IElement } from '@interface/api/element/element.interface';
 
 @Controller('element')
 export class ElementController {
@@ -35,9 +39,17 @@ export class ElementController {
   }
 
   @Public()
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateElementDto: UpdateElementDto) {
     return this.elementService.update(id, updateElementDto);
+  }
+  @Public()
+  @Put(':id/state')
+  updateState(
+    @Param('id') id: string,
+    @Body() cancellationElementDto: CancellationElementDto,
+  ): Promise<IElement> {
+    return this.elementService.updateStates(id, cancellationElementDto);
   }
 
   @Public()

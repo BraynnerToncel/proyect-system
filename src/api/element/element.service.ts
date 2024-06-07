@@ -6,7 +6,7 @@ import {
 import { UpdateElementDto } from './dto/update-element.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Element } from '@entity/api/element/element.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { IElement } from '@interface/api/element/element.interface';
 import { CreateElementDto } from './dto/create-element.dto';
@@ -186,6 +186,30 @@ export class ElementService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async updateStates(
+    elementId: string,
+    { elementState }: Pick<IElement, 'elementState'>,
+  ): Promise<IElement> {
+    const updateResult: UpdateResult = await this.elementRepository.update(
+      elementId,
+      { elementState },
+    );
+
+    if (!updateResult)
+      throw new BadRequestException(`role with id ${elementId} not found`);
+
+    const element: IElement = await this.elementRepository.findOne({
+      where: { elementId: elementId },
+    });
+
+    this.eventEmitter.emit('emit', {
+      channel: 'element/data',
+      data: { ...element },
+    });
+
+    return element;
   }
 
   async remove(elementId: string): Promise<string> {
