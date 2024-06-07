@@ -8,11 +8,18 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from '@entity/api/resevation/reservation.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import {
+  DeleteResult,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { User } from '@entity/api/user/user.entity';
 import { TypeOfUse } from '@entity/api/typeOfUse/typeOfUse.entity';
 import { Element } from '@entity/api/element/element.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { isBefore } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 @Injectable()
 export class ReservationService {
@@ -30,8 +37,27 @@ export class ReservationService {
     userId: string,
     createReservationDto: CreateReservationDto,
   ): Promise<Reservation> {
-    const { reservationAt, typeOfUseId, elementId } = createReservationDto;
+    const { reservationAt, typeOfUseId, elementId, reservationTime } =
+      createReservationDto;
 
+    const now = new Date();
+    const nowInColombia = formatInTimeZone(
+      now,
+      'America/Bogota',
+      `"yyyy-MM-dd HH:mm:ss.SSSXXX"`,
+    );
+
+    if (new Date(nowInColombia) > new Date(reservationAt)) {
+      throw new BadRequestException(
+        'The booking date cannot be less than the current date and time in the Colombian time zone.',
+      );
+    }
+
+    if (isBefore(reservationTime, reservationAt)) {
+      throw new BadRequestException(
+        'The reservation end date cannot be less than the reservation start date and time.',
+      );
+    }
     const user = await this.userRepository.findOne({
       where: { userId: userId },
     });
@@ -56,6 +82,8 @@ export class ReservationService {
       where: {
         element: { elementId },
         reservationState: 0,
+        reservationAt: LessThanOrEqual(reservationTime),
+        reservationTime: MoreThanOrEqual(reservationAt),
       },
     });
 
@@ -67,9 +95,11 @@ export class ReservationService {
 
     const reservation = this.reservationRepository.create({
       reservationAt,
+      reservationCreateAt: new Date(nowInColombia),
       user,
       typeofuse,
       element,
+      reservationTime,
     });
 
     return await this.reservationRepository.save(reservation);
@@ -89,8 +119,13 @@ export class ReservationService {
     reservationIds: string,
     updateReservationDto: UpdateReservationDto,
   ) {
-    const { reservationAt, reservationState, typeOfUseId, elementId } =
-      updateReservationDto;
+    const {
+      reservationAt,
+      reservationState,
+      typeOfUseId,
+      elementId,
+      reservationTime,
+    } = updateReservationDto;
     const reservation = await this.reservationRepository.findOne({
       where: { reservationId: reservationIds },
     });
@@ -120,7 +155,7 @@ export class ReservationService {
         throw new NotFoundException(`Element with ID ${elementId} not found`);
       }
       reservation.element = element;
-
+      reservation.reservationTime = reservationTime;
       reservation.reservationAt = reservationAt ?? reservation.reservationAt;
       reservation.reservationState =
         reservationState ?? reservation.reservationState;

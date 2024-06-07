@@ -6,6 +6,7 @@ export interface IReservation {
   reservationId: string;
   reservationCreateAt: Date;
   reservationAt: Date;
+  reservationTime: Date;
   reservationState: number;
   user: IUser;
   typeofuse: ITypeOfUse;

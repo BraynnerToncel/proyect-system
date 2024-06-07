@@ -4,7 +4,6 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
@@ -12,7 +11,6 @@ import { Element } from '../element/element.entity';
 import { EReservationState } from '@constant/reservationState/reservationState.constant';
 
 @Entity()
-@Unique(['reservationAt', 'element'])
 export class Reservation {
   @PrimaryGeneratedColumn('uuid')
   reservationId: string;
@@ -29,6 +27,12 @@ export class Reservation {
     nullable: false,
   })
   reservationAt: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    nullable: false,
+  })
+  reservationTime: Date;
 
   @Column({
     type: 'enum',

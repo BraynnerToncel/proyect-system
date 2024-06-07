@@ -5,6 +5,10 @@ export class CreateReservationDto {
   @IsNotEmpty()
   reservationAt: Date;
 
+  @IsDateString()
+  @IsNotEmpty()
+  reservationTime: Date;
+
   @IsUUID()
   @IsNotEmpty()
   typeOfUseId: string;
