@@ -10,6 +10,7 @@ import { Reservation } from '../resevation/reservation.entity';
 import { Loan } from '../loan/loan.entity';
 import { Type } from '../type/type.entity';
 import { Install } from '../install/install.entity';
+import { EElementState } from '@constant/elementState/elementState.constant';
 
 @Entity()
 export class Element {
@@ -18,8 +19,12 @@ export class Element {
   @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
   elementName: string;
 
-  @Column({ type: 'boolean', default: true })
-  elementState: boolean;
+  @Column({
+    type: 'enum',
+    enum: EElementState,
+    default: EElementState.available,
+  })
+  elementState: EElementState;
 
   @OneToMany(() => Reservation, (reservation) => reservation.element)
   @JoinColumn()

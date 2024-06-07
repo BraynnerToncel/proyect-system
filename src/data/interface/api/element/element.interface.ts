@@ -6,7 +6,7 @@ import { IType } from '../type/type.interface';
 export interface IElement {
   elementId: string;
   elementName: string;
-  elementState?: boolean;
+  elementState?: number;
   reservation: IReservation;
   loan: ILoan;
   type: IType;
@@ -17,7 +17,6 @@ export type ICreateElement = Omit<
   IElement,
   'elementId' | 'loan' | 'type' | 'install' | 'elementState'
 > &
-  // Partial<Pick<IElement, 'elementState'>> &
   Pick<IType, 'typeId'>;
 
 export type IUpdateElement = Partial<ICreateElement>;
