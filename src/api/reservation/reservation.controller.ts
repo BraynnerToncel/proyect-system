@@ -1,3 +1,4 @@
+import { IReservation } from './../../data/interface/api/reservation/reservation.interface';
 import {
   Controller,
   Get,
@@ -9,7 +10,10 @@ import {
 } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
+import {
+  UpdateReservationDto,
+  UpdateStateReservation,
+} from './dto/update-reservation.dto';
 import { Public } from '@decorator/routes-public.decorator';
 
 @Controller('reservation')
@@ -41,6 +45,16 @@ export class ReservationController {
   ) {
     return this.reservationService.update(id, updateReservationDto);
   }
+
+  @Public()
+  @Put(':id/state')
+  updateState(
+    @Param('id') id: string,
+    @Body() updateStateReservation: UpdateStateReservation,
+  ): Promise<IReservation> {
+    return this.reservationService.updateStates(id, updateStateReservation);
+  }
+
   @Public()
   @Delete(':id')
   remove(@Param('id') id: string) {

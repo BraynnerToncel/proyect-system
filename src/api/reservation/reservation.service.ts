@@ -9,6 +9,7 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from '@entity/api/resevation/reservation.entity';
 import {
+  DataSource,
   DeleteResult,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -20,6 +21,7 @@ import { Element } from '@entity/api/element/element.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { isBefore } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+import { IReservation } from '@interface/api/reservation/reservation.interface';
 
 @Injectable()
 export class ReservationService {
@@ -31,7 +33,10 @@ export class ReservationService {
   private typeOfUseRepository: Repository<TypeOfUse>;
   @InjectRepository(Element)
   private elementRepository: Repository<Element>;
-  constructor(private readonly eventEmitter: EventEmitter2) {}
+  constructor(
+    private readonly eventEmitter: EventEmitter2,
+    private readonly dataSource: DataSource,
+  ) {}
 
   async create(
     userId: string,
@@ -58,51 +63,75 @@ export class ReservationService {
         'The reservation end date cannot be less than the reservation start date and time.',
       );
     }
-    const user = await this.userRepository.findOne({
-      where: { userId: userId },
-    });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { userId: userId },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      const typeofuse = await queryRunner.manager.findOne(TypeOfUse, {
+        where: { typeOfUseId },
+      });
+      if (!typeofuse) {
+        throw new NotFoundException(
+          `TypeOfUse with ID ${typeOfUseId} not found`,
+        );
+      }
+
+      const element = await queryRunner.manager.findOne(Element, {
+        where: { elementId },
+      });
+      if (!element) {
+        throw new NotFoundException(`Element with ID ${elementId} not found`);
+      }
+
+      if (element.elementState !== 0) {
+        throw new ConflictException(
+          `Element with ID ${elementId} is not available for reservation.`,
+        );
+      }
+
+      const activeReservation = await queryRunner.manager.count(Reservation, {
+        where: {
+          element: { elementId },
+          reservationState: 0,
+          reservationAt: LessThanOrEqual(reservationTime),
+          reservationTime: MoreThanOrEqual(reservationAt),
+        },
+      });
+
+      if (activeReservation > 0) {
+        throw new ConflictException(
+          `Element with ID ${elementId} already has an active reservation`,
+        );
+      }
+
+      const reservation = queryRunner.manager.create(Reservation, {
+        reservationAt,
+        reservationCreateAt: new Date(nowInColombia),
+        user,
+        typeofuse,
+        element,
+        reservationTime,
+      });
+
+      await queryRunner.manager.save(Reservation, reservation);
+
+      element.elementState = 1;
+      await queryRunner.manager.save(Element, element);
+
+      await queryRunner.commitTransaction();
+      return reservation;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    const typeofuse = await this.typeOfUseRepository.findOne({
-      where: { typeOfUseId },
-    });
-    if (!typeofuse) {
-      throw new NotFoundException(`TypeOfUse with ID ${typeOfUseId} not found`);
-    }
-
-    const element = await this.elementRepository.findOne({
-      where: { elementId },
-    });
-    if (!element) {
-      throw new NotFoundException(`Element with ID ${elementId} not found`);
-    }
-    const activeReservation = await this.reservationRepository.count({
-      where: {
-        element: { elementId },
-        reservationState: 0,
-        reservationAt: LessThanOrEqual(reservationTime),
-        reservationTime: MoreThanOrEqual(reservationAt),
-      },
-    });
-
-    if (activeReservation > 0) {
-      throw new ConflictException(
-        `Element with ID ${elementId} already has an active reservation`,
-      );
-    }
-
-    const reservation = this.reservationRepository.create({
-      reservationAt,
-      reservationCreateAt: new Date(nowInColombia),
-      user,
-      typeofuse,
-      element,
-      reservationTime,
-    });
-
-    return await this.reservationRepository.save(reservation);
   }
 
   async findAll() {
@@ -119,13 +148,8 @@ export class ReservationService {
     reservationIds: string,
     updateReservationDto: UpdateReservationDto,
   ) {
-    const {
-      reservationAt,
-      reservationState,
-      typeOfUseId,
-      elementId,
-      reservationTime,
-    } = updateReservationDto;
+    const { reservationAt, typeOfUseId, elementId, reservationTime } =
+      updateReservationDto;
     const reservation = await this.reservationRepository.findOne({
       where: { reservationId: reservationIds },
     });
@@ -157,24 +181,97 @@ export class ReservationService {
       reservation.element = element;
       reservation.reservationTime = reservationTime;
       reservation.reservationAt = reservationAt ?? reservation.reservationAt;
-      reservation.reservationState =
-        reservationState ?? reservation.reservationState;
 
       return await this.reservationRepository.save(reservation);
     }
   }
 
-  async remove(id: string) {
-    const deleteResult: DeleteResult = await this.userRepository.delete(id);
+  async updateStates(
+    reservationId: string,
+    { reservationState }: Pick<IReservation, 'reservationState'>,
+  ): Promise<IReservation> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const reservation = await queryRunner.manager.findOne(Reservation, {
+        where: { reservationId },
+        relations: ['element'],
+      });
 
-    if (!deleteResult.affected)
-      throw new BadRequestException(`User ${id} was not deleted `);
+      if (!reservation) {
+        throw new NotFoundException(
+          `Reservation with id ${reservationId} not found`,
+        );
+      }
 
-    this.eventEmitter.emit('emit', {
-      channel: 'user/data',
-      data: { id, isDelete: true },
-    });
+      if (reservationState === 1 || reservationState === 2) {
+        const elementState = reservationState === 1 ? 2 : 0;
+        await queryRunner.manager.update(
+          Element,
+          reservation.element.elementId,
+          {
+            elementState,
+          },
+        );
+      }
 
-    return id;
+      await queryRunner.manager.update(Reservation, reservationId, {
+        reservationState,
+      });
+
+      await queryRunner.commitTransaction();
+      return reservation;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async remove(reservationId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const reservation = await queryRunner.manager.findOne(Reservation, {
+        where: { reservationId },
+        relations: ['element'],
+      });
+
+      if (!reservation) {
+        throw new NotFoundException(
+          `Reservation with ID ${reservationId} not found`,
+        );
+      }
+
+      const deleteResult: DeleteResult = await queryRunner.manager.delete(
+        Reservation,
+        reservationId,
+      );
+
+      if (!deleteResult.affected) {
+        throw new BadRequestException(
+          `Reservation ${reservationId} was not deleted`,
+        );
+      }
+
+      await queryRunner.manager.update(Element, reservation.element.elementId, {
+        elementState: 0,
+      });
+
+      await queryRunner.commitTransaction();
+
+      this.eventEmitter.emit('emit', {
+        channel: 'reservation/data',
+        data: { id: reservationId, isDelete: true },
+      });
+
+      return reservationId;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
