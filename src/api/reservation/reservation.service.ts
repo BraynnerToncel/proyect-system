@@ -10,7 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from '@entity/api/resevation/reservation.entity';
 import {
   DataSource,
-  DeleteResult,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -221,52 +220,6 @@ export class ReservationService {
 
       await queryRunner.commitTransaction();
       return reservation;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  async remove(reservationId: string) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.startTransaction();
-    try {
-      const reservation = await queryRunner.manager.findOne(Reservation, {
-        where: { reservationId },
-        relations: ['element'],
-      });
-
-      if (!reservation) {
-        throw new NotFoundException(
-          `Reservation with ID ${reservationId} not found`,
-        );
-      }
-
-      const deleteResult: DeleteResult = await queryRunner.manager.delete(
-        Reservation,
-        reservationId,
-      );
-
-      if (!deleteResult.affected) {
-        throw new BadRequestException(
-          `Reservation ${reservationId} was not deleted`,
-        );
-      }
-
-      await queryRunner.manager.update(Element, reservation.element.elementId, {
-        elementState: 0,
-      });
-
-      await queryRunner.commitTransaction();
-
-      this.eventEmitter.emit('emit', {
-        channel: 'reservation/data',
-        data: { id: reservationId, isDelete: true },
-      });
-
-      return reservationId;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

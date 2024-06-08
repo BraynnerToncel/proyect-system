@@ -1,13 +1,5 @@
 import { IReservation } from './../../data/interface/api/reservation/reservation.interface';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import {
@@ -53,11 +45,5 @@ export class ReservationController {
     @Body() updateStateReservation: UpdateStateReservation,
   ): Promise<IReservation> {
     return this.reservationService.updateStates(id, updateStateReservation);
-  }
-
-  @Public()
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reservationService.remove(id);
   }
 }
