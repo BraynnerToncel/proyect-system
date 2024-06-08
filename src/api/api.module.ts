@@ -13,6 +13,7 @@ import { ElementModule } from './element/element.module';
 import { InstallModule } from './install/install.module';
 import { TypeOfUseModule } from './type-of-use/type-of-use.module';
 import { ReservationModule } from './reservation/reservation.module';
+import { LoanModule } from './loan/loan.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ReservationModule } from './reservation/reservation.module';
     InstallModule,
     TypeOfUseModule,
     ReservationModule,
+    LoanModule,
   ],
   providers: [
     {

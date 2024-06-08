@@ -6,7 +6,7 @@ export interface ILoan {
   loanId: string;
   loanCreateAt: Date;
   loanReturnAt: Date;
-  loanState: boolean;
+  loanState: number;
   requestedUser: IUser;
   receivedUser: IUser;
   deliveryUser: IUser;

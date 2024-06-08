@@ -8,6 +8,7 @@ import {
 import { User } from '../user/user.entity';
 import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
 import { Element } from '../element/element.entity';
+import { ELoanState } from '@constant/loan/loanState.constant';
 
 @Entity()
 export class Loan {
@@ -28,8 +29,11 @@ export class Loan {
   })
   loanReturnAt: Date;
 
-  @Column({ type: 'boolean', default: true, nullable: false })
-  loanState: boolean;
+  @Column({ type: 'enum', enum: ELoanState, default: ELoanState.asset })
+  // asset = 0
+  // completed = 1
+  // undelivered = 2
+  loanState: ELoanState;
 
   @ManyToOne(() => User, (user) => user.requestedUser)
   requestedUser: User;
