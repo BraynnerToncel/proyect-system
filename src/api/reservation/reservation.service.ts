@@ -88,11 +88,11 @@ export class ReservationService {
         throw new NotFoundException(`Element with ID ${elementId} not found`);
       }
 
-      if (element.elementState !== 0) {
-        throw new ConflictException(
-          `Element with ID ${elementId} is not available for reservation.`,
-        );
-      }
+      // if (element.elementState !== 0) {
+      //   throw new ConflictException(
+      //     `Element with ID ${elementId} is not available for reservation.`,
+      //   );
+      // }
 
       const activeReservation = await queryRunner.manager.count(Reservation, {
         where: {
@@ -231,4 +231,80 @@ export class ReservationService {
       await queryRunner.release();
     }
   }
+  async check() {
+    const reservations = await this.reservationRepository.find({
+      where: { reservationState: 4 },
+    });
+
+    if (reservations.length === 0) {
+      throw new NotFoundException('No reservations found in state 4.');
+    }
+
+    return reservations;
+  }
+
+  // async updateElement(
+  //   reservationId: string,
+  //   newElementId: string,
+  // ): Promise<IReservation> {
+  //   const queryRunner = this.dataSource.createQueryRunner();
+  //   await queryRunner.connect();
+  //   await queryRunner.startTransaction();
+  //   console.log('reservationId :>> ', reservationId);
+  //   try {
+  //     const reservation = await queryRunner.manager.findOne(Reservation, {
+  //       where: { reservationId },
+  //       relations: ['element'],
+  //     });
+
+  //     if (!reservation) {
+  //       throw new NotFoundException(
+  //         `Reservation with id ${reservationId} not found`,
+  //       );
+  //     }
+
+  //     const previousReservation = await queryRunner.manager.findOne(
+  //       Reservation,
+  //       {
+  //         where: {
+  //           element: { elementId: reservation.element.elementId },
+  //           reservationState: 4,
+  //           reservationTime: LessThanOrEqual(reservation.reservationAt),
+  //         },
+  //         order: { reservationTime: 'DESC' },
+  //       },
+  //     );
+
+  //     if (!previousReservation) {
+  //       throw new BadRequestException(
+  //         'The previous reservation is not in state 4, so updating the element is not allowed.',
+  //       );
+  //     }
+
+  //     const newElement = await queryRunner.manager.findOne(Element, {
+  //       where: { elementId: newElementId },
+  //     });
+
+  //     if (!newElement) {
+  //       throw new ConflictException(
+  //         `Element with ID ${newElementId} is not available for reservation.`,
+  //       );
+  //     }
+
+  //     newElement.elementState = 1;
+
+  //     reservation.element = newElement;
+
+  //     await queryRunner.manager.save(Element, newElement);
+  //     await queryRunner.manager.save(Reservation, reservation);
+
+  //     await queryRunner.commitTransaction();
+  //     return reservation;
+  //   } catch (error) {
+  //     await queryRunner.rollbackTransaction();
+  //     throw error;
+  //   } finally {
+  //     await queryRunner.release();
+  //   }
+  // }
 }

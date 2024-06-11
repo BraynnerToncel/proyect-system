@@ -20,10 +20,17 @@ export class ReservationController {
     return this.reservationService.create(userId, createReservationDto);
   }
   @Public()
-  @Get('list')
+  @Get()
   findAll() {
     return this.reservationService.findAll();
   }
+
+  @Public()
+  @Get(':check')
+  checkReservationsInState4() {
+    return this.reservationService.check();
+  }
+
   @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -46,4 +53,17 @@ export class ReservationController {
   ): Promise<IReservation> {
     return this.reservationService.updateStates(id, updateStateReservation);
   }
+
+  // @Public()
+  // @Put(':id/stateElement')
+  // updateReservationElement(
+  //   @Param('id') id: string,
+  //   @Body()
+  //   updateElementDto: { newElementId: string },
+  // ) {
+  //   console.log('reservationId:', id);
+  //   console.log('updateElementDto:', updateElementDto);
+  //   const { newElementId } = updateElementDto;
+  //   return this.reservationService.updateElement(id, newElementId);
+  // }
 }
