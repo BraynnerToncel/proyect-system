@@ -1,5 +1,4 @@
 import { IElement } from '../element/element.interface';
-import { ITypeOfUse } from '../typeOfUse/typeOfUse.interface';
 import { IUser } from '../user/user.interface';
 
 export interface ILoan {
@@ -10,14 +9,12 @@ export interface ILoan {
   requestedUser: IUser;
   receivedUser: IUser;
   deliveryUser: IUser;
-  typeOfUse: ITypeOfUse;
   element: IElement;
 }
 export type ICreateLoan = Omit<
   ILoan,
   | 'loanId'
   | 'requestedUser'
-  | 'typeOfUse'
   | 'element'
   | 'loanState'
   | 'receivedUser'
@@ -27,7 +24,6 @@ export type ICreateLoan = Omit<
   Pick<IUser, 'deliveryUser'> &
   Pick<IUser, 'receivedUser'> &
   Pick<IUser, 'requestedUser'> &
-  Pick<ITypeOfUse, 'typeOfUseId'> &
   Pick<IElement, 'elementId'>;
 
 export type IUpdateLoan = Partial<ICreateLoan>;

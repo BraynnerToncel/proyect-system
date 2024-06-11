@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
-import { TypeOfUse } from '../typeOfUse/typeOfUse.entity';
 import { Element } from '../element/element.entity';
 import { ELoanState } from '@constant/loan/loanState.constant';
 
@@ -43,9 +42,6 @@ export class Loan {
 
   @ManyToOne(() => User, (user) => user.receivedUser)
   receivedUser: User;
-
-  @ManyToOne(() => TypeOfUse, (typeOfUse) => typeOfUse.loan)
-  typeOfUse: TypeOfUse;
 
   @ManyToOne(() => Element, (element) => element.loan)
   element: Element;

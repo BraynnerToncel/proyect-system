@@ -8,8 +8,5 @@ export class CreateLoanDto {
   requestedUser: string;
 
   @IsUUID()
-  typeOfUseId: string;
-
-  @IsUUID()
   elementId: string;
 }

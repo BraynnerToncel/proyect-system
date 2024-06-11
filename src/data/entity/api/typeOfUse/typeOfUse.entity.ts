@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Reservation } from '../resevation/reservation.entity';
-import { Loan } from '../loan/loan.entity';
 
 @Entity()
 export class TypeOfUse {
@@ -22,8 +21,4 @@ export class TypeOfUse {
   @OneToMany(() => Reservation, (reservation) => reservation.typeofuse)
   @JoinColumn()
   reservation: Array<Reservation>;
-
-  @OneToMany(() => Loan, (loan) => loan.typeOfUse)
-  @JoinColumn()
-  loan: Array<Loan>;
 }
