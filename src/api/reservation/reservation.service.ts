@@ -203,7 +203,11 @@ export class ReservationService {
         );
       }
 
-      if (reservationState === 1 || reservationState === 2) {
+      if (
+        reservationState === 1 ||
+        reservationState === 2 ||
+        reservationState === 3
+      ) {
         const elementState = reservationState === 1 ? 2 : 0;
         await queryRunner.manager.update(
           Element,

@@ -39,9 +39,11 @@ export class Reservation {
     enum: EReservationState,
     default: EReservationState.Pending,
   })
-  // Pending = 0,
-  // Delivered = 1,
-  // Canceled = 2,
+  // Pending = 0
+  // Delivered = 1
+  // Canceled = 2
+  // completed = 3
+  // pending return = 4
   reservationState: EReservationState;
 
   @ManyToOne(() => User, (user) => user.reservation)
