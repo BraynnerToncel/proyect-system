@@ -136,6 +136,11 @@ export class LoanService {
     if (!loan) {
       throw new NotFoundException(`Loan with ID ${loanId} not found`);
     }
+    if (loan.loanState !== 0) {
+      throw new ConflictException(
+        `Loan with ID ${loanId} has already been updated`,
+      );
+    }
     const reservation = await this.reservationRepostory.findOne({
       where: { reservationId },
       relations: ['element', 'user'],
