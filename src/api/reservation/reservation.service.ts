@@ -88,12 +88,6 @@ export class ReservationService {
         throw new NotFoundException(`Element with ID ${elementId} not found`);
       }
 
-      // if (element.elementState !== 0) {
-      //   throw new ConflictException(
-      //     `Element with ID ${elementId} is not available for reservation.`,
-      //   );
-      // }
-
       const activeReservation = await queryRunner.manager.count(Reservation, {
         where: {
           element: { elementId },

@@ -8,5 +8,5 @@ export class CreateLoanDto {
   elementId: string;
 
   @IsUUID()
-  idReservation: string;
+  reservationId: string;
 }

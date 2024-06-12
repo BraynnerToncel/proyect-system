@@ -8,15 +8,15 @@ import { Public } from '@decorator/routes-public.decorator';
 export class LoanController {
   constructor(private readonly loanService: LoanService) {}
   @Public()
-  @Post(':userId')
+  @Post(':userDelivery')
   create(
-    @Param('userId') userId: string,
+    @Param('userDelivery') userDelivery: string,
     @Body() createLoanDto: CreateLoanDto,
   ) {
-    return this.loanService.create(createLoanDto);
+    return this.loanService.create(userDelivery, createLoanDto);
   }
   @Public()
-  @Get()
+  @Get('list')
   findAll() {
     return this.loanService.findAll();
   }
@@ -26,8 +26,11 @@ export class LoanController {
     return this.loanService.findOne(id);
   }
   @Public()
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateLoanDto: UpdateLoanDto) {
-    return this.loanService.update(id, updateLoanDto);
+  @Put(':userRe/state')
+  update(
+    @Param('userRe') userRe: string,
+    @Body() updateLoanDto: UpdateLoanDto,
+  ) {
+    return this.loanService.update(userRe, updateLoanDto);
   }
 }

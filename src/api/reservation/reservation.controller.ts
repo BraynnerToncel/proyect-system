@@ -19,6 +19,7 @@ export class ReservationController {
   ) {
     return this.reservationService.create(userId, createReservationDto);
   }
+
   @Public()
   @Get()
   findAll() {
