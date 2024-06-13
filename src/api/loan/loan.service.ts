@@ -80,6 +80,12 @@ export class LoanService {
       if (!user) {
         throw new NotFoundException(`User with ID ${userDelivery} not found`);
       }
+      const activeLoanCount = await queryRunner.manager.count(Loan, {
+        where: { requestedUser: { userId: requestedUser }, loanState: 0 },
+      });
+      if (activeLoanCount > 0) {
+        throw new ConflictException('The user already has an active loan');
+      }
 
       await queryRunner.manager.update(Reservation, reservationId, {
         reservationState: 1,
