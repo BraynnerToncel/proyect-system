@@ -3,6 +3,7 @@ import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import {
+  UpdateElementReservation,
   UpdateReservationDto,
   UpdateStateReservation,
 } from './dto/update-reservation.dto';
@@ -55,16 +56,13 @@ export class ReservationController {
     return this.reservationService.updateStates(id, updateStateReservation);
   }
 
-  // @Public()
-  // @Put(':id/stateElement')
-  // updateReservationElement(
-  //   @Param('id') id: string,
-  //   @Body()
-  //   updateElementDto: { newElementId: string },
-  // ) {
-  //   console.log('reservationId:', id);
-  //   console.log('updateElementDto:', updateElementDto);
-  //   const { newElementId } = updateElementDto;
-  //   return this.reservationService.updateElement(id, newElementId);
-  // }
+  @Public()
+  @Put(':id/element')
+  updateReservationElement(
+    @Param('id') id: string,
+    @Body()
+    updateElementDto: UpdateElementReservation,
+  ) {
+    return this.reservationService.updateElement(id, updateElementDto);
+  }
 }

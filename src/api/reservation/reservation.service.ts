@@ -5,7 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
+import {
+  UpdateElementReservation,
+  UpdateReservationDto,
+} from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from '@entity/api/resevation/reservation.entity';
 import {
@@ -237,68 +240,58 @@ export class ReservationService {
     return reservations;
   }
 
-  // async updateElement(
-  //   reservationId: string,
-  //   newElementId: string,
-  // ): Promise<IReservation> {
-  //   const queryRunner = this.dataSource.createQueryRunner();
-  //   await queryRunner.connect();
-  //   await queryRunner.startTransaction();
-  //   console.log('reservationId :>> ', reservationId);
-  //   try {
-  //     const reservation = await queryRunner.manager.findOne(Reservation, {
-  //       where: { reservationId },
-  //       relations: ['element'],
-  //     });
+  async updateElement(
+    id: string,
+    updateElementReservation: UpdateElementReservation,
+  ) {
+    const { elementId, reservationId } = updateElementReservation;
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-  //     if (!reservation) {
-  //       throw new NotFoundException(
-  //         `Reservation with id ${reservationId} not found`,
-  //       );
-  //     }
+    try {
+      const adminUser = await queryRunner.manager.findOne(User, {
+        where: { userId: id },
+      });
+      if (!adminUser) {
+        throw new NotFoundException(`Admin user with ID ${id} not found`);
+      }
 
-  //     const previousReservation = await queryRunner.manager.findOne(
-  //       Reservation,
-  //       {
-  //         where: {
-  //           element: { elementId: reservation.element.elementId },
-  //           reservationState: 4,
-  //           reservationTime: LessThanOrEqual(reservation.reservationAt),
-  //         },
-  //         order: { reservationTime: 'DESC' },
-  //       },
-  //     );
+      const reservation = await queryRunner.manager.findOne(Reservation, {
+        where: { reservationId },
+      });
 
-  //     if (!previousReservation) {
-  //       throw new BadRequestException(
-  //         'The previous reservation is not in state 4, so updating the element is not allowed.',
-  //       );
-  //     }
+      if (!reservation) {
+        throw new NotFoundException(
+          `Reservation with ID ${reservationId} not found`,
+        );
+      }
+      const element = await queryRunner.manager.findOne(Element, {
+        where: { elementId },
+      });
 
-  //     const newElement = await queryRunner.manager.findOne(Element, {
-  //       where: { elementId: newElementId },
-  //     });
+      if (!element) {
+        throw new NotFoundException(`element with ID ${elementId} not found`);
+      }
 
-  //     if (!newElement) {
-  //       throw new ConflictException(
-  //         `Element with ID ${newElementId} is not available for reservation.`,
-  //       );
-  //     }
-
-  //     newElement.elementState = 1;
-
-  //     reservation.element = newElement;
-
-  //     await queryRunner.manager.save(Element, newElement);
-  //     await queryRunner.manager.save(Reservation, reservation);
-
-  //     await queryRunner.commitTransaction();
-  //     return reservation;
-  //   } catch (error) {
-  //     await queryRunner.rollbackTransaction();
-  //     throw error;
-  //   } finally {
-  //     await queryRunner.release();
-  //   }
-  // }
+      if (element.elementState !== 0) {
+        throw new BadRequestException(
+          `the element is not available to be assigned to the reservation`,
+        );
+      }
+      await queryRunner.manager.update(Reservation, reservationId, {
+        element,
+      });
+      await queryRunner.manager.update(Element, elementId, {
+        elementState: 1,
+      });
+      await queryRunner.commitTransaction();
+      return reservation;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }
