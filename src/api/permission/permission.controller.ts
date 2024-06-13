@@ -3,6 +3,9 @@ import { PermissionService } from './permission.service';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { IPermission } from '@interface/api/permission/permission.interface';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('permission')
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}

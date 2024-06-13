@@ -14,7 +14,9 @@ import { allMediaMimeTypes } from '@constant/mediaType/mediaMimeTypes.constant';
 import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('file')
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}

@@ -8,7 +8,9 @@ import {
   UpdateStateReservation,
 } from './dto/update-reservation.dto';
 import { Public } from '@decorator/routes-public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('reservation')
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}

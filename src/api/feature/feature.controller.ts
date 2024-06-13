@@ -12,7 +12,9 @@ import { CreateFeatureDto } from './dto/create-feature.dto';
 import { UpdateFeatureDto } from './dto/update-feature.dto';
 import { IFeature } from '@interface/api/feature/feature.interface';
 import { Public } from '@decorator/routes-public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('feature')
 @Controller('feature')
 export class FeatureController {
   constructor(private readonly featureService: FeatureService) {}

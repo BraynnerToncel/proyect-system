@@ -12,7 +12,9 @@ import { CreateTypeDto } from './dto/create-type.dto';
 import { UpdateTypeDto } from './dto/update-type.dto';
 import { Public } from '@decorator/routes-public.decorator';
 import { IType } from '@interface/api/type/type.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('type')
 @Controller('type')
 export class TypeController {
   constructor(private readonly typeService: TypeService) {}

@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { json, urlencoded } from 'body-parser';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   // Configuración del logger
@@ -62,6 +63,24 @@ async function bootstrap() {
       transform: true, // Convirtiendo automáticamente el tipo de datos
     }),
   );
+
+  const config = new DocumentBuilder()
+    .setTitle('Proyect')
+    .setDescription('The proyect API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('proyect')
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'x-token',
+        in: 'header',
+      },
+      'x-token',
+    )
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   // Definiendo el puerto seguro y el puerto por defecto
   const securePort: number = process.env.SECURE_PORT

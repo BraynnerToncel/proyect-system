@@ -11,7 +11,9 @@ import { TypeOfUseService } from './type-of-use.service';
 import { CreateTypeOfUseDto } from './dto/create-type-of-use.dto';
 import { UpdateTypeOfUseDto } from './dto/update-type-of-use.dto';
 import { Public } from '@decorator/routes-public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('type-of-use')
 @Controller('type-of-use')
 export class TypeOfUseController {
   constructor(private readonly typeOfUseService: TypeOfUseService) {}

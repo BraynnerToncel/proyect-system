@@ -15,7 +15,9 @@ import {
 } from './dto/update-element.dto';
 import { Public } from '@decorator/routes-public.decorator';
 import { IElement } from '@interface/api/element/element.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('element')
 @Controller('element')
 export class ElementController {
   constructor(private readonly elementService: ElementService) {}

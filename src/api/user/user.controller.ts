@@ -18,7 +18,10 @@ import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { IUser } from '@interface/api/user/user.interface';
 import { Public } from '@decorator/routes-public.decorator';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
+@ApiSecurity('x-token')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

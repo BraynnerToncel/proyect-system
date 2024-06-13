@@ -11,7 +11,9 @@ import { InstallService } from './install.service';
 import { CreateInstallDto } from './dto/create-install.dto';
 import { UpdateInstallDto } from './dto/update-install.dto';
 import { Public } from '@decorator/routes-public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('install')
 @Public()
 @Controller('install')
 export class InstallController {

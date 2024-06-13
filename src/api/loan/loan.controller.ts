@@ -3,7 +3,9 @@ import { LoanService } from './loan.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { Public } from '@decorator/routes-public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('loan')
 @Controller('loan')
 export class LoanController {
   constructor(private readonly loanService: LoanService) {}
