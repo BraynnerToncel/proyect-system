@@ -64,7 +64,7 @@ export class LoanService {
     const differenceInMinutes =
       (now.getTime() - reservationCreateTime.getTime()) / (1000 * 60);
 
-    if (differenceInMinutes < 0 || differenceInMinutes > 5) {
+    if (differenceInMinutes < 0 || differenceInMinutes > 10) {
       throw new BadRequestException(
         'Loan creation must be at the reservation time or within 5 minutes after.',
       );

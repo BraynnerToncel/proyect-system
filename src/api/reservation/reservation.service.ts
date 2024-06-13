@@ -250,11 +250,11 @@ export class ReservationService {
     await queryRunner.startTransaction();
 
     try {
-      const adminUser = await queryRunner.manager.findOne(User, {
+      const user = await queryRunner.manager.findOne(User, {
         where: { userId: id },
       });
-      if (!adminUser) {
-        throw new NotFoundException(`Admin user with ID ${id} not found`);
+      if (!user) {
+        throw new NotFoundException(` user with ID ${id} not found`);
       }
 
       const reservation = await queryRunner.manager.findOne(Reservation, {
