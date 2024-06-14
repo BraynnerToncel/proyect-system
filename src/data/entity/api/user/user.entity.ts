@@ -4,12 +4,14 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { Loan } from '../loan/loan.entity';
 import { Reservation } from '../resevation/reservation.entity';
 
 @Entity()
+@Unique(['userFullName', 'username', 'userLastName'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   userId: string;
