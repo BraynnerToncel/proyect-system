@@ -65,11 +65,9 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Proyect')
-    .setDescription('The proyect API description')
+    .setTitle('Proyect-management system')
+    .setDescription('The proyect API management system  description')
     .setVersion('1.0')
-    .addBearerAuth()
-    .addTag('proyect')
     .addApiKey(
       {
         type: 'apiKey',
