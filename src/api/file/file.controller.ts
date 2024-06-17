@@ -14,8 +14,9 @@ import { allMediaMimeTypes } from '@constant/mediaType/mediaMimeTypes.constant';
 import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
+@ApiSecurity('x-token')
 @ApiTags('file')
 @Controller('file')
 export class FileController {
@@ -52,6 +53,19 @@ export class FileController {
       },
     }),
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File upload',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @PermissionRequired(ValidPermission.settings_files_create)
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
@@ -79,7 +93,6 @@ export class FileController {
   )
   @PermissionRequired(ValidPermission.settings_files_update)
   async updateFile(@UploadedFile() file: Express.Multer.File) {
-    console.log('file :>> ', file);
     if (!file) {
       throw new BadRequestException('No file uploaded.');
     }

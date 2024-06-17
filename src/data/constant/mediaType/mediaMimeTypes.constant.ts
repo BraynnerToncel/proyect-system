@@ -1,6 +1,6 @@
 const imageMimeTypes = [
   'image/jpeg',
-  // 'image/jpg',
+  'image/jpg',
   'image/png',
   'image/gif',
   'image/bmp',

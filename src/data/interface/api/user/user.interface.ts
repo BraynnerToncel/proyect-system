@@ -1,3 +1,4 @@
+import { IFile } from '../file/file.interface';
 import { ILoan } from '../loan/loan.interface';
 import { IReservation } from '../reservation/reservation.interface';
 import { IRole } from '../role/role.interface';
@@ -15,6 +16,7 @@ export interface IUser {
   receivedUser: Array<ILoan>;
   requestedUser: Array<ILoan>;
   reservation: Array<IReservation>;
+  file: IFile;
 }
 
 export type IUserFindCondition = Partial<Pick<IUser, 'userId' | 'username'>>;
@@ -28,6 +30,7 @@ export type ICreateUser = Omit<
   | 'receivedUser'
   | 'requestedUser'
   | 'reservation'
+  | 'file'
 > & {
   roleId: string;
   userState: boolean;
@@ -35,6 +38,7 @@ export type ICreateUser = Omit<
 
 export type IUpdateUser = Partial<ICreateUser> &
   Partial<Record<'newPassword', string>> &
-  Partial<Record<'role', Pick<IRole, 'roleId'>>>;
+  Partial<Record<'role', Pick<IRole, 'roleId'>>> &
+  Partial<Record<'file', Pick<IFile, 'fileId'>>>;
 
 export type IUserRestorePassword = Record<'password', string>;

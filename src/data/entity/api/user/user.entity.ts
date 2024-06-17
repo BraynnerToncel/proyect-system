@@ -1,13 +1,16 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { Loan } from '../loan/loan.entity';
+import { File } from '../file/file.entity';
 import { Reservation } from '../resevation/reservation.entity';
 
 @Entity()
@@ -48,4 +51,8 @@ export class User {
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservation: Array<Reservation>;
+
+  @OneToOne(() => File, (file) => file.user)
+  @JoinColumn()
+  file: File;
 }

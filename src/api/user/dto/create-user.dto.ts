@@ -38,4 +38,7 @@ export class CreateUserDto {
 
   @IsUUID()
   roleId: string;
+
+  @IsUUID()
+  fileId: string;
 }
