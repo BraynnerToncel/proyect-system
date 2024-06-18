@@ -58,10 +58,12 @@ export class UserService {
 
   async findAll(): Promise<Array<IUser>> {
     const users: Array<IUser> = await this.userRepository.find({
-      relations: { role: true },
+      relations: { role: true, file: true },
       loadEagerRelations: false,
     });
-
+    users.forEach((user) => {
+      delete user.userPassword;
+    });
     return users;
   }
 
