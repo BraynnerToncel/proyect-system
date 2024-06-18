@@ -29,6 +29,8 @@ export class UserService {
       10,
     );
 
+    console.log('userData :>> ', userData);
+
     const { userId }: IUser = await this.userRepository.save({
       ...userData,
       username: userData.username.toLowerCase(),
@@ -36,6 +38,7 @@ export class UserService {
       userPassword: encryptedPassword,
       role: { roleId: userData.roleId },
       userCreatedAt: new Date().toISOString(),
+      file: { fileId: userData.fileId },
     });
 
     const user = await this.userRepository.findOne({

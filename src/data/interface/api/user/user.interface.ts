@@ -34,6 +34,7 @@ export type ICreateUser = Omit<
 > & {
   roleId: string;
   userState: boolean;
+  fileId: string;
 };
 
 export type IUpdateUser = Partial<ICreateUser> &
