@@ -35,13 +35,13 @@ export class UserController {
 
   @Get()
   @PermissionRequired(ValidPermission.settings_users_read)
-  findAll(): Promise<Array<IUser>> {
+  findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
   @PermissionRequired(ValidPermission.settings_users_read)
-  findOne(@Param('id') userId: string): Promise<IUser> {
+  findOne(@Param('id') userId: string) {
     return this.userService.findOne(userId);
   }
 

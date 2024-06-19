@@ -16,11 +16,14 @@ import {
   EntityNotFoundError,
   DeleteResult,
 } from 'typeorm';
+import { UserView } from '@entity/view/user/user.vew.entity';
 
 @Injectable()
 export class UserService {
   @InjectRepository(User)
   private readonly userRepository: Repository<User>;
+  @InjectRepository(UserView)
+  private readonly userViewRepository: Repository<UserView>;
   constructor(private readonly eventEmitter: EventEmitter2) {}
 
   async create(userData: ICreateUser): Promise<IUser> {
@@ -56,22 +59,18 @@ export class UserService {
     return user;
   }
 
-  async findAll(): Promise<Array<IUser>> {
-    const users: Array<IUser> = await this.userRepository.find({
-      relations: { role: true, file: true },
-      loadEagerRelations: false,
-    });
-    users.forEach((user) => {
-      delete user.userPassword;
-    });
+  async findAll() {
+    console.log('Fetching users from UserView...');
+    const users = await this.userViewRepository.find();
+    // const users = await this.userViewRepository.query(
+    //   'SELECT * FROM "UserView"',
+    // );
+    console.log('Fetched users: ', users);
     return users;
   }
 
-  async findOne(userId: string): Promise<IUser> {
-    return await this.userRepository.findOne({
-      relations: { role: true },
-      loadEagerRelations: false,
-      select: { userPassword: false },
+  async findOne(userId: string) {
+    return await this.userViewRepository.findOne({
       where: { userId },
     });
   }
