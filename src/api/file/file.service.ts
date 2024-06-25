@@ -14,11 +14,15 @@ import {
 } from 'fs';
 import { join } from 'path';
 import * as os from 'os';
+import { DeepPartial, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class FileService {
   private readonly availablePaths: Array<string> = ['image', 'video'];
   private readonly serverIp: string;
+  @InjectRepository(File)
+  private readonly fileRepository: Repository<File>;
 
   constructor() {
     const networkInterfaces = os.networkInterfaces();
@@ -33,30 +37,29 @@ export class FileService {
       if (!existsSync(path)) mkdirSync(path);
     });
   }
-  async createOrUpdateFile(
-    file: Express.Multer.File,
-    isUpdate: boolean,
-  ): Promise<IFile> {
+  async createOrUpdateFile(files: Express.Multer.File, isUpdate: boolean) {
     console.log('object');
-    const fileType: string = file.mimetype.split('/')[0];
-    const path: string = join(process.env.STORE_FILES_PATH, fileType);
-    const filePath: string = join(path, file.originalname);
+    const filesType: string = files.mimetype.split('/')[0];
+    const path: string = join(process.env.STORE_FILES_PATH, filesType);
+    const filePath: string = join(path, files.originalname);
 
-    const url = `${process.env.SERVER_PROTOCOL}://${this.serverIp}:${process.env.PORT}/static/${fileType}/${file.originalname}`;
+    const url = `${process.env.SERVER_PROTOCOL}://${this.serverIp}:${process.env.PORT}/static/${filesType}/${files.originalname}`;
     if (isUpdate && !existsSync(filePath)) {
       throw new BadRequestException('File does not exist. Cannot update.');
     } else if (!isUpdate && existsSync(filePath)) {
       throw new BadRequestException('File already exists. Cannot create.');
     }
 
-    writeFileSync(filePath, file.buffer);
-
-    const dataFile = {
-      fileName: file.originalname,
-      fileLength: file.size,
+    const dataFile: IFile = {
+      fileName: files.originalname,
+      fileType: filesType,
+      fileLength: files.size,
       fileUrl: url,
-      fileType,
     };
+    const newFile = this.fileRepository.create(dataFile as DeepPartial<File>);
+    await this.fileRepository.save(newFile);
+    writeFileSync(filePath, files.buffer);
+
     return dataFile;
   }
 

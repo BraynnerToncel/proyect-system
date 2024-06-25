@@ -7,6 +7,13 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from '@guard/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { FeatureModule } from './feature/feature.module';
+import { TypeModule } from './type/type.module';
+import { ElementModule } from './element/element.module';
+import { InstallModule } from './install/install.module';
+import { TypeOfUseModule } from './type-of-use/type-of-use.module';
+import { ReservationModule } from './reservation/reservation.module';
+import { LoanModule } from './loan/loan.module';
 
 @Module({
   imports: [
@@ -16,6 +23,13 @@ import { APP_GUARD } from '@nestjs/core';
     FileModule,
     AuthModule,
     JwtModule,
+    FeatureModule,
+    TypeModule,
+    ElementModule,
+    InstallModule,
+    TypeOfUseModule,
+    ReservationModule,
+    LoanModule,
   ],
   providers: [
     {

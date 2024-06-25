@@ -13,7 +13,10 @@ import { UpdateRoleDto, UpdateRoleStateDto } from './dto/update-role.dto';
 import { ValidPermission } from '@constant/permissions/permissions.constant';
 import { PermissionRequired } from '@decorator/permission.decorator';
 import { IRole } from '@interface/api/role/role.interface';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('role')
+@ApiSecurity('x-token')
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

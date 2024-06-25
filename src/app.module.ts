@@ -11,6 +11,7 @@ import { ResponseInterceptor } from '@interceptor/response/response.interceptor'
 import { MorganInterceptor, MorganModule } from 'nest-morgan';
 import { getEnvPath } from 'common/helper/env.helper';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { CoreModule } from './core/core.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/../common/envs`);
 
@@ -31,6 +32,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/../common/envs`);
     ApiModule,
     MorganModule,
     SharedModule,
+    CoreModule,
   ],
   controllers: [],
   providers: [

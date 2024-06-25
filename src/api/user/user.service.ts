@@ -16,11 +16,14 @@ import {
   EntityNotFoundError,
   DeleteResult,
 } from 'typeorm';
+import { UserView } from '@entity/view/user/user.vew.entity';
 
 @Injectable()
 export class UserService {
   @InjectRepository(User)
   private readonly userRepository: Repository<User>;
+  @InjectRepository(UserView)
+  private readonly userViewRepository: Repository<UserView>;
   constructor(private readonly eventEmitter: EventEmitter2) {}
 
   async create(userData: ICreateUser): Promise<IUser> {
@@ -29,6 +32,8 @@ export class UserService {
       10,
     );
 
+    console.log('userData :>> ', userData);
+
     const { userId }: IUser = await this.userRepository.save({
       ...userData,
       username: userData.username.toLowerCase(),
@@ -36,6 +41,7 @@ export class UserService {
       userPassword: encryptedPassword,
       role: { roleId: userData.roleId },
       userCreatedAt: new Date().toISOString(),
+      file: { fileId: userData.fileId },
     });
 
     const user = await this.userRepository.findOne({
@@ -53,20 +59,13 @@ export class UserService {
     return user;
   }
 
-  async findAll(): Promise<Array<IUser>> {
-    const users: Array<IUser> = await this.userRepository.find({
-      relations: { role: true },
-      loadEagerRelations: false,
-    });
-
+  async findAll() {
+    const users = await this.userViewRepository.find();
     return users;
   }
 
-  async findOne(userId: string): Promise<IUser> {
-    return await this.userRepository.findOne({
-      relations: { role: true },
-      loadEagerRelations: false,
-      select: { userPassword: false },
+  async findOne(userId: string) {
+    return await this.userViewRepository.findOne({
       where: { userId },
     });
   }

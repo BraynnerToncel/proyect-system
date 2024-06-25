@@ -1,7 +1,6 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -25,7 +24,6 @@ export class Role {
   roleState: boolean;
 
   @OneToMany(() => User, (user) => user.role)
-  @JoinColumn()
   user: Array<User>;
 
   @ManyToMany(() => Permission, (permission) => permission.role, {
