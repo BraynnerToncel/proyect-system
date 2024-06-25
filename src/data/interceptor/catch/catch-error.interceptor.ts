@@ -40,6 +40,7 @@ const CatchErrorsList = {
     };
   },
   QueryFailedError: (exception: QueryFailedError): ICatchBodyResponse => {
+    console.log('exception :>> ', exception);
     const rawMessage = exception.message;
     return {
       status: HttpStatus.UNPROCESSABLE_ENTITY,

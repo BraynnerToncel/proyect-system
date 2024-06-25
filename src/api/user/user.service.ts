@@ -60,12 +60,7 @@ export class UserService {
   }
 
   async findAll() {
-    console.log('Fetching users from UserView...');
     const users = await this.userViewRepository.find();
-    // const users = await this.userViewRepository.query(
-    //   'SELECT * FROM "UserView"',
-    // );
-    console.log('Fetched users: ', users);
     return users;
   }
 
