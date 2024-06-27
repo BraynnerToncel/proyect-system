@@ -45,6 +45,12 @@ export class UserController {
     return this.userService.findOne(userId);
   }
 
+  @Get(':id/role')
+  @PermissionRequired(ValidPermission.settings_users_read)
+  findAllRole(@Param('id') roleId: string) {
+    return this.userService.findAllRoles(roleId);
+  }
+
   @Put(':id')
   @PermissionRequired(ValidPermission.settings_users_update)
   update(
