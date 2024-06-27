@@ -17,6 +17,7 @@ import {
   DeleteResult,
 } from 'typeorm';
 import { UserView } from '@entity/view/user/user.vew.entity';
+import { Role } from '@entity/api/role/role.entity';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,8 @@ export class UserService {
   private readonly userRepository: Repository<User>;
   @InjectRepository(UserView)
   private readonly userViewRepository: Repository<UserView>;
+  @InjectRepository(Role)
+  private readonly roleRepository: Repository<Role>;
   constructor(private readonly eventEmitter: EventEmitter2) {}
 
   async create(userData: ICreateUser): Promise<IUser> {
@@ -61,7 +64,26 @@ export class UserService {
 
   async findAll() {
     const users = await this.userViewRepository.find();
+
+    console.log('Fetched users: ', users);
     return users;
+  }
+  async findAllRoles(roleId: string) {
+    const role = await this.roleRepository.findOne({ where: { roleId } });
+
+    if (!role) {
+      throw new BadRequestException(`Role with id ${roleId} not found`);
+    }
+
+    const users = await this.userViewRepository.find({
+      where: { roleName: role.roleName },
+    });
+
+    if (users.length === 0) {
+      throw new BadRequestException(
+        `No users found for the role ${role.roleName}`,
+      );
+    }
   }
 
   async findOne(userId: string) {

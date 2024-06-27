@@ -4,7 +4,7 @@ export class Migrations1718742613647 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
         CREATE VIEW "user_view" AS
-        SELECT 
+        SELECT
           u."userId" AS "userId",
           u."userLastName" AS "userLastName",
           u."userFullName" AS "userFullName",

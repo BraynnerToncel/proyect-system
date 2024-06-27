@@ -15,6 +15,7 @@ async function bootstrap() {
     .flat()
     .filter(({ family, internal }) => family === 'IPv4' && !internal)
     .map(({ address }) => address)[0];
+  // const ip: string | undefined = process.env.IP;
 
   const keyFile = 'privkey';
   const certFile = 'fullchain';

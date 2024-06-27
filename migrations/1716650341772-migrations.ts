@@ -2,6 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Migrations1716650341772 implements MigrationInterface {
   name = 'Migrations1716650341772';
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE TABLE "permission" ("permissionId" uuid NOT NULL DEFAULT uuid_generate_v4(), "permissionName" character varying(100) NOT NULL, "permissionDescription" character varying(200) NOT NULL, "permissionState" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_86b314be9c1be5c62b3a9d97ae4" PRIMARY KEY ("permissionId"))`,
@@ -11,6 +12,9 @@ export class Migrations1716650341772 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE TABLE "type_of_use" ("typeOfUseId" uuid NOT NULL DEFAULT uuid_generate_v4(), "typeOfUseName" character varying(20) NOT NULL, "typeOfUseConcept" character varying(50) NOT NULL, CONSTRAINT "PK_562028de392fde88fbec098e506" PRIMARY KEY ("typeOfUseId"))`,
+    );
+    await queryRunner.query(
+      `CREATE TYPE "public"."reservation_reservationstate_enum" AS ENUM('0', '1', '2', '3', '4')`,
     );
     await queryRunner.query(
       `CREATE TABLE "reservation" ("reservationId" uuid NOT NULL DEFAULT uuid_generate_v4(), "reservationCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationAt" TIMESTAMP NOT NULL DEFAULT now(), "reservationTime" TIMESTAMP NOT NULL DEFAULT now(), "reservationState" "public"."reservation_reservationstate_enum" NOT NULL DEFAULT '0', "userUserId" uuid, "typeofuseTypeOfUseId" uuid, "elementElementId" uuid, CONSTRAINT "PK_afb522c4e412047329fd5806dc2" PRIMARY KEY ("reservationId"))`,
@@ -25,7 +29,13 @@ export class Migrations1716650341772 implements MigrationInterface {
       `CREATE TABLE "type" ("typeId" uuid NOT NULL DEFAULT uuid_generate_v4(), "typeName" character varying(50) NOT NULL, "typeDescription" character varying(50), "typeState" character varying NOT NULL DEFAULT true, CONSTRAINT "PK_3a25b3b7490c51932eb4d7b6491" PRIMARY KEY ("typeId"))`,
     );
     await queryRunner.query(
+      `CREATE TYPE "public"."element_elementstate_enum" AS ENUM('0', '1', '2', '3')`,
+    );
+    await queryRunner.query(
       `CREATE TABLE "element" ("elementId" uuid NOT NULL DEFAULT uuid_generate_v4(), "elementName" character varying(50) NOT NULL, "elementState" "public"."element_elementstate_enum" NOT NULL DEFAULT '0', "typeTypeId" uuid, CONSTRAINT "UQ_c4a59a4b5b0821c1506931d5a3f" UNIQUE ("elementName"), CONSTRAINT "PK_41aa81f006b870bc490b86ecb7f" PRIMARY KEY ("elementId"))`,
+    );
+    await queryRunner.query(
+      `CREATE TYPE "public"."loan_loanstate_enum" AS ENUM('0', '1', '2')`,
     );
     await queryRunner.query(
       `CREATE TABLE "loan" ("loanId" uuid NOT NULL DEFAULT uuid_generate_v4(), "loanCreateAt" TIMESTAMP NOT NULL DEFAULT now(), "loanReturnAt" TIMESTAMP NOT NULL DEFAULT now(), "loanState" "public"."loan_loanstate_enum" NOT NULL DEFAULT '0', "requestedUserUserId" uuid, "deliveryUserUserId" uuid, "receivedUserUserId" uuid, "elementElementId" uuid, CONSTRAINT "PK_5ae96496534c6e154001892aced" PRIMARY KEY ("loanId"))`,
@@ -102,9 +112,24 @@ export class Migrations1716650341772 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "types_has_features" ADD CONSTRAINT "FK_46d55f39e289a04dc5969a61e62" FOREIGN KEY ("featureFeatureId") REFERENCES "feature"("featureId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
+
+    await queryRunner.query(
+      `INSERT INTO "typeorm_metadata"("database", "schema", "table", "type", "name", "value") VALUES (DEFAULT, $1, DEFAULT, $2, $3, $4)`,
+      [
+        'public',
+        'VIEW',
+        'user_view',
+        'SELECT "u"."userId" AS "userId", "u"."userFullName" AS "userFullName", "u"."userLastName" AS "userLastName", "u"."username" AS "username", "u"."userEmail" AS "userEmail", "u"."userState" AS "userState", "r"."roleName" AS "roleName", "f"."fileUrl" AS "fileUrl" FROM "user" "u" INNER JOIN "role" "r" ON "r"."roleId"="u"."roleRoleId"  INNER JOIN "file" "f" ON "f"."fileId"="u"."fileFileId" GROUP BY "u"."userId", "u"."userFullName", "u"."userLastName", "u"."userState", "u"."userEmail", "u"."username" , "r"."roleName", "f"."fileUrl"',
+      ],
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `DELETE FROM "typeorm_metadata" WHERE "type" = $1 AND "name" = $2 AND "schema" = $3`,
+      ['VIEW', 'user_view', 'public'],
+    );
+    await queryRunner.query(`DROP VIEW "user_view"`);
     await queryRunner.query(
       `ALTER TABLE "types_has_features" DROP CONSTRAINT "FK_46d55f39e289a04dc5969a61e62"`,
     );
@@ -170,11 +195,16 @@ export class Migrations1716650341772 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "user"`);
     await queryRunner.query(`DROP TABLE "file"`);
     await queryRunner.query(`DROP TABLE "loan"`);
+    await queryRunner.query(`DROP TYPE "public"."loan_loanstate_enum"`);
     await queryRunner.query(`DROP TABLE "element"`);
+    await queryRunner.query(`DROP TYPE "public"."element_elementstate_enum"`);
     await queryRunner.query(`DROP TABLE "type"`);
     await queryRunner.query(`DROP TABLE "feature"`);
     await queryRunner.query(`DROP TABLE "install"`);
     await queryRunner.query(`DROP TABLE "reservation"`);
+    await queryRunner.query(
+      `DROP TYPE "public"."reservation_reservationstate_enum"`,
+    );
     await queryRunner.query(`DROP TABLE "type_of_use"`);
     await queryRunner.query(`DROP TABLE "role"`);
     await queryRunner.query(`DROP TABLE "permission"`);
