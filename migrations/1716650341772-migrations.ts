@@ -112,9 +112,7 @@ export class Migrations1716650341772 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "types_has_features" ADD CONSTRAINT "FK_46d55f39e289a04dc5969a61e62" FOREIGN KEY ("featureFeatureId") REFERENCES "feature"("featureId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
-    await queryRunner.query(
-      `CREATE VIEW "user_view" AS SELECT "u"."userId" AS "userId", "u"."userFullName" AS "userFullName", "u"."userLastName" AS "userLastName", "u"."username" AS "username", "u"."userEmail" AS "userEmail", "u"."userState" AS "userState", "r"."roleName" AS "roleName", "f"."fileUrl" AS "fileUrl" FROM "user" "u" INNER JOIN "role" "r" ON "r"."roleId"="u"."roleRoleId"  INNER JOIN "file" "f" ON "f"."fileId"="u"."fileFileId" GROUP BY "u"."userId", "u"."userFullName", "u"."userLastName", "u"."userState", "u"."userEmail", "u"."username" , "r"."roleName", "f"."fileUrl"`,
-    );
+
     await queryRunner.query(
       `INSERT INTO "typeorm_metadata"("database", "schema", "table", "type", "name", "value") VALUES (DEFAULT, $1, DEFAULT, $2, $3, $4)`,
       [

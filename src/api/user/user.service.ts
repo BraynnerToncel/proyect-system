@@ -64,10 +64,11 @@ export class UserService {
 
   async findAll() {
     const users = await this.userViewRepository.find();
+
+    console.log('Fetched users: ', users);
     return users;
   }
-
-  async findAllRoles(roleId: string): Promise<UserView[]> {
+  async findAllRoles(roleId: string) {
     const role = await this.roleRepository.findOne({ where: { roleId } });
 
     if (!role) {
@@ -83,8 +84,6 @@ export class UserService {
         `No users found for the role ${role.roleName}`,
       );
     }
-
-    return users;
   }
 
   async findOne(userId: string) {
